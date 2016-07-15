@@ -1,0 +1,5 @@
+http://lodev.org/
+
+LodePaint: A multiplatform painting program.
+LodePNG: A PNG decoder/encoder in C++ without any dependencies.
+Computer Graphics Tutorials (2007): These explain different "oldschool" graphical effects. 

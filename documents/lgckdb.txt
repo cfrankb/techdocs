@@ -1,0 +1,36 @@
+*** fileformat
+
++header
+4	signature "VFF1"			--\
+4	revision (=0)				  |  HEADER_SIZE = 16
+4	fileSize		(m_fileSize);	  |
+4 	offset folderIndex	(m_offsetIndex)	--/
+
++folderIndex header
+4	folderCount 		(m_size)	--\  INDEX_HEADER_SIZE =8
+4	max size		(m_max)		--/
+
+	folderEntry [0..n]
+
++folderIndex entry [0..n]		
+12	folderName		m_name  	  |- FOLDER_ENTRY_SIZE = 16
+4	offset fileIndex	m_offsetFileList -/
+...
+ 
+	fileIndex [0..n]
+
++fileIndexHeader [0..n]		CFolder::FILELIST_HEADER_SIZE = 8
+4	fileCount		
+4	max Size		
+
+	fileIndexEntry... [0..n]
+
++fileIndexEntry [0...n]		CFolder::FILELIST_ENTRY_SIZE = 40
+32	fileName	
+4	offset data
+4	size		(-1 if unknown)
+...
+
++data [0..n]
+	bytes of data...
+...

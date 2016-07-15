@@ -1,0 +1,91 @@
+Cool. Good luck with the CA. I'm sure you've done your research but I thought I would share some links I found useful while I was working on my implementation of it.
+
+http://www.drdobbs.com/jvm/an-algorithm-for-compressing-space-and-t/184406478
+http://www.gamasutra.com/view/feature/134736/an_intro_to_cellular_automation.php
+http://home.comcast.net/~tom_forsyth/papers/cellular_automata_for_physical_modelling.html
+
+I ended up going with a quadtree with lots of recursion. It works great. I do need to refine/optimize the water logic itself though. If you'd like I can share more details with you.
+
+
+Also here's some links from various docs I've read about platforming and physics and box2d and whatever, in case someone's interested.
+
+http://devmag.org.za/2011/01/18/11-tips-for-making-a-fun-platformer/
+http://higherorderfun.com/blog/2012/05/20/the-guide-to-implementing-2d-platformers/
+http://www.gamasutra.com/view/feature/130268/a_detailed_crossexamination_of_.php?print=1
+http://forums.tigsource.com/index.php?topic=7431.15
+http://forums.tigsource.com/index.php?topic=17253.15
+http://gamedev.stackexchange.com/questions/26291/in-a-2d-platform-game-how-to-ensure-the-player-moves-smoothly-over-sloping-grou
+http://gamedev.stackexchange.com/questions/2799/good-2d-platformer-physics
+http://www.iforce2d.net/b2dtut/constant-speed
+http://www.iforce2d.net/b2dtut/jumping
+http://www.iforce2d.net/b2dtut/jumpability
+http://www.badlogicgames.com/wordpress/?p=2017
+http://www.iforce2d.net/b2dtut/collision-anatomy
+http://info.sonicretro.org/Sonic_Physics_Guide
+http://www.wildbunny.co.uk/blog/2011/12/14/how-to-make-a-2d-platform-game-part-2-collision-detection/
+http://games.greggman.com/game/programming_m_c__kids/
+http://personal.boristhebrave.com/project/b2buoyancycontroller/demo
+
+
+
+
+http://code.google.com/p/svg-to-box2d/source/browse/#svn%2Ftrunk%2Fsrc
+
+You can iterate over the fixtures in a body like this:
+for (b2Fixture* f = body->GetFixtureList(); f; f = f->GetNext()) 
+{
+    ....
+}
+
+Once you have a fixture you will need to check what kind of shape it has, then cast to that shape type to access the shape data:
+b2Shape::Type shapeType = fixture->GetType();
+if ( shapeType == b2Shape::e_circle )
+{
+    b2CircleShape* circleShape = (b2CircleShape*)fixture->GetShape();
+    ...
+}
+else if ( shapeType == b2Shape::e_polygon )
+{
+    b2PolygonShape* polygonShape = (b2PolygonShape*)fixture->GetShape();
+    ....
+}
+
+Use GetVertexCount() and GetVertex() to get the vertices from a polygon shape.
+
+
+------------------------------------------------------------------
+ 
+http://www.iforce2d.net/b2dtut/collision-filtering
+
+
+Changing the collision filter at run-time
+
+ Sometimes you might want to alter the collision filter of a fixture depending on events in the game. You can change each of the categoryBits, maskBits, groupIndex by setting a new b2Filter in the fixture. Quite often you only want to change one of these, so it's handy to be able to get the existing filter first, change the field you want, and put it back. If you already have a reference to the fixture you want to change, this is pretty easy: 1
+
+ //get the existing filter
+  b2Filter filter = fixture->GetFilterData();
+  
+  //change whatever you need to, eg.
+  filter.categoryBits = ...;
+  filter.maskBits = ...;
+  filter.groupIndex = ...;
+  
+  //and set it back
+  fixture->SetFilterData(filter);
+
+http://www.iforce2d.net/b2dtut/sensors
+
+
+
+--------------------------------------------------------
+
+http://blog.xyris.ca/?tag=box2d
+
+Manifolds
+
+Embedded throughout the b2Contact classes are references to a manifold. This is simply a holder for the two objects being evaluated for contact. There’s a local-coordinate manifold and a world-coordinates manifold.
+ If you view the Box2d Testbed’s ‘presolve’ method, you’ll see that ‘manifold’ and ‘oldManifold’ are used to retrieve position and vector normals from colliding physics fixtures.
+
+Older versions of Box2d examples might have used Add, Remove, and Persist functions for contacts. Manifolds simplify the code needed to collect and evaluate these contact points.
+
+  

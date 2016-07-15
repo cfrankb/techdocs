@@ -1,0 +1,38 @@
+I downloaded and tried it out. You got a nice sprite editor in the works. I played with it for about 30 minutes just doodling. So bear that in mind for my comments. There is a fair chance I missed some things. 
+
+What I really like is
+I like the compact color wheel. I prefer that style of layout. makes picking colors fast and easy. 
+Docking tool bars are great I wish more programs would use them. 
+Thank you for Saving the sprite strip horizontally. Seriously all editors should do this. the editor I use most at the moment Graphics gale does it vertically. It may not seem like a big deal but when you have a folder of images and you wish to preview them it make it so much easier. It's a real work flow time saver. 
+Drawing is quick to update and fluid, 
+thanks for putting in a Nudge feature that has a shortcut key and not buried in a menu.
+Wallpaper or tiled view is a very useful. 
+
+Questions and or suggestions. 
+I could not get the circle tool to work. Didn't seem as if I could select it. Or either of the two tools between color select and zoom.
+What does the "pick a color" button do?
+It was difficult to re-dock a tool bar and not make it a tab. Example pull off and float Liveview. then re-dock it back to the same place. stacked below the color palette. It always wanted to become a tab instead of taking up the bottom portion as before. 
+Can you Zoom in or out the liveview or Static view?
+Can you Save colors to the palette?
+After checking or un-checking show grid. I would need to click on the image to update the view. Resulting in a work flow of check show grid. Click on image. Then do ctrl+z to undo the edit I made by clicking in order for the grid to update 
+
+
+
+Possible feature requests, Some of these may already be available and I simply missed them.
+ Ability to edit image in wallpaper view. as well as choose a zoom level for wallpaper view. 
+shortcut keys for all tools and menu actions, with the ability to change the shortcut keys. 
+Ability to remove all spacing between pixels when grid is turned off. The small pixel border that's still present when the grid is turned off throws off my perception of shading and blocks of solid color.
+Ability for an animated preview.
+Ability to apply menu functions like flip horizontal, enlarge, shrink and so on to all images as well as current frame. 
+
+Thanks for sharing your editor. I hope at least some of this is useful to you.
+
+---------------------------------------------------------------------------
+
+
+FYI, about alpha editing: I've tested countless free painting programs, and one I remarked is the completely obscure Pixelformer. It had the rather unusual feature of allowing 3 display/edit modes:
+- normal : very classic, pixels are blended on a classic chessboard pattern so their alpha is evident.
+- color-only : shows only internal color, and painting affect only color components (RGB)
+- alpha-only : shows only the alpha channel, as greyscale (black=fully transparent, white=fully opaque). Painting affect only the alpha channel, so it's easy to opacify or transparify anything, using any painting tool and brush size. This mode is great to check that opaque shapes are really opaque.
+
+

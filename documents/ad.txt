@@ -1,0 +1,118 @@
+http://www.pixeljoint.com
+
+[B]Project[/B]
+
+LGCK Builder
+
+[URL=http://imageshack.us/photo/my-images/849/00001p.gif/][IMG]http://img849.imageshack.us/img849/8516/00001p.gif[/IMG][/URL]
+
+Uploaded with [URL=http://imageshack.us]ImageShack.us[/URL]
+
+[B]Brief Description[/B]
+
+A free all-in-one game construction kit targeted to be both powerful yet simple to use.  Provide an easy way to allow users to create just about any kind of games. We have selected a scripting language to expose engine functionality and allow users to extend the construction kit as needed. LGCK strives to be a compromise between fast execution and ease of use. 
+
+[IMG]http://sassociations.net/cfrankb/gallery/0024/019sm.jpg[/IMG]
+
+[B]Target Aim[/B]
+
+We're looking for people who want to help us create a demo game to promote the construction kit. We need 2D artists for background, art and sprites. Pixel is our first choice but 3D to 2D modelers are welcome too. If you can help us with branding (logos, icons, look & feel) that would be a good addition as well.
+
+[IMG]http://www.sassociations.net/cfrankb/gallery/0024/035sm.jpg[/IMG]
+
+[B]Compensation
+[/B]
+
+This is a volunteer project. The scoop and length of the development process will provide active participants with valuable experience. References will be given upon demand.
+
+[B]Technology 
+[/B]
+
+[U]Target Platforms: 
+[/U]
+    - Windows (XP, Vista, 7)
+    - Linux (tested on KDE)
+    - Mac (tba)
+
+[U]Programming:
+[/U]
+    - C++ for the engine 
+    - lua for in-game scripting
+
+[B]Talent needed
+[/B]
+    
+- artists (graphics, animation) URGENT !!!!
+- testers (URGENTLY)
+- additional C++ coders for the engine
+- script writers for enhanced game functionality
+- sound/music
+- level designers
+- documentation writers
+
+There is a little for everyone even beginners. No prior experience required.
+
+Although, above all, what this project needs the most is feedback. 
+
+[URL=http://imageshack.us/photo/my-images/195/0060f.png/][IMG]http://img195.imageshack.us/img195/877/0060f.png[/IMG][/URL]
+
+Uploaded with [URL=http://imageshack.us]ImageShack.us[/URL]
+
+
+[B]Team Structure[/B]
+
+As lead programmer, I have already written more than 20 000 lines of C++ code for this project. The code is modular and can be easily divided up. Any additional people will be assigned tasks.  Team will get to make suggestions and provide direction for future developments.
+
+[B]Contacts[/B]
+
+lgckbuilder AT yahoo DOT ca
+[URL=http://www.sassociations.net/cfrankb/lgck/contact.php]http://www.sassociations.net/cfrankb/lgck/contact.php[/URL]
+
+[B]Previous Work[/B]
+
+My programming experience goes back more than twenty years. Early work include games for the commodore 64.
+[URL=http://www.sassociations.net/cfrankb/c64]http://www.sassociations.net/cfrankb/c64[/URL]
+
+[U]Flagship websites[/U]
+[URL=http://www.sassociations.net]http://www.sassociations.net[/URL]
+[URL=http://www.episodeGuides.com]http://www.episodeGuides.com[/URL]
+
+More details can be found inside my portfolio.
+
+Website
+[URL=http://www.sassociations.net/cfrankb/lgck]http://www.sassociations.net/cfrankb/lgck[/URL]
+
+Youtube videos
+[URL=http://www.youtube.com/watch?v=t-xfLB05t54]http://www.youtube.com/watch?v=t-xfLB05t54[/URL]
+[URL=http://www.youtube.com/watch?v=AEquZ0h1yHc]http://www.youtube.com/watch?v=AEquZ0h1yHc[/URL]
+
+[B]Feedback[/B]
+
+Comments, suggestions and constructive feedback are welcomed and encouraged. :D
+
+[IMG]http://sassociations.net/cfrankb/gallery/0024/045sm.jpg[/IMG]
+
+
+
+
+
+[b]What's new for LGCK Builder 0.5.0.9[/b]
+
+- GUI: added a new toolbox to drag&drop sprites on the level
+- GUI: added popup menu to spriteBox
+- GUI: added popup menu to LevelView
+- GUI: added checkmarks to sprite event combo
+- BUG FIX: png transparency bug in obl5t
+- BUG FIX: unMap bug w/ random attacker
+- ENGINE: OBL5 format moved to version 0x501
+- TOOLS: obl5t merged now uses the shared libraries
+
+You can download it here
+[url]http://www.sassociations.net/cfrankb/lgck[/url]
+
+[u][i]Brand-new toolbox to drag & drop sprites directly onto the level[/i][/u]
+
+
+Youtube videos
+[url]http://www.youtube.com/watch?v=t-xfLB05t54[/url]
+[url]http://www.youtube.com/watch?v=AEquZ0h1yHc[/url]

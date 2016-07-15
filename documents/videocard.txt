@@ -1,0 +1,3 @@
+vendor: NVIDIA Corporation
+renderer: GeForce GT 430/PCIe/SSE2
+version: 4.2.0 NVIDIA 302.17 

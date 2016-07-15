@@ -1,0 +1,59 @@
+tasks
+================================================
+  for rebirths
+  and removing displays
+  and other script events
+
+flags
+================================================
+[]  UP, DOWN, LEFT, RIGHT
+  solid ??? armored???
+    [x] it opens up the potential to allow objects to one-way doors
+    [ ] also let sprites be touched from one direction but not others
+
+player bullet
+================================================
+  powerlevel
+  fire rate / freq 
+  max bullets (actives)
+  damage to monsters or enemy bullets
+  ammo left or unlimited
+
+    cbFireRate
+    cbMaxBullets
+    cbPlayerBullet
+    
+overide
+================================================
+    canFall( self )
+    attackSprite ( self, target )
+    splat ( self, target )
+    canMove( self, aim )
+    isSolid ( self,  )
+    hittest
+    canPush()
+    canCarry()
+ 
+restart level
+==================================
+    - at origin
+    - at waypoint
+    - at the death spot
+    restore level back to origin
+    continue with current
+
+    should this be defined at game, level, or sprite ?
+
+Sprite 
+====================================
+  proto
+    CProto (object properties)
+
+  object
+    CObject
+      path
+      animation    
+
+  obl5
+    COBL3Filter
+       SS3Frame (images)

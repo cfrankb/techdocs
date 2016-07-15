@@ -1,0 +1,55 @@
+http://www.dreamincode.net/forums/topic/228501-setting-up-opengl-viewport/
+http://www.opengl.org/discussion_boards/showthread.php/173797-glTexCoord2f-simple-questions
+http://www.opengl.org/sdk/docs/man/xhtml/glDeleteTextures.xml
+http://samplecodebank.blogspot.ca/2011/05/gltexsubimage2d-example.html
+http://www.opengl.org/sdk/docs/man/xhtml/glTexSubImage2D.xml
+http://stackoverflow.com/questions/11776624/qt-drawing-a-rectangle-on-a-glwidget-showing-a-video-frame
+http://www.cs.uccs.edu/~ssemwal/indexGLTutorial.html
+http://qt-project.org/forums/viewthread/8923
+http://www.qtforum.org/article/25989/glrect-was-not-declared-in-this-scope.html
+
+
+OpenGL Tutorials
+http://nehe.gamedev.net/
+http://forums.inside3d.com/viewtopic.php?t=1326
+
+OpenGL Texture Tutorial
+http://www.nullterminator.net/gltexture.html
+
+Transparency
+http://www.opengl.org/archives/resources/faq/technical/transparency.htm
+
+
+http://www.opengl.org/discussion_boards/showthread.php/164251-How-to-drag-a-2D-selection-rectangle-over-3D-view
+http://iphonedevsdk.com/forum/iphone-sdk-development/46852-drawing-a-2d-image-in-opengl.html
+http://www.opengl.org/wiki/GLSL_Type_Qualifiers#Interpolation_qualifiers
+
+fog
+http://www.videotutorialsrock.com/opengl_tutorial/fog/text.php
+
+---------------------------------------------------------------
+
+    /*
+    for (int y=0; y * m_frame->m_nLen < r.bottom(); ++y) {
+        for (int x=0; x * m_frame->m_nHei < r.right(); ++x) {
+            int x1 = x * m_frame->m_nHei;
+            int x2 = (x+1) * m_frame->m_nHei;
+            int y1 = y * m_frame->m_nLen;
+            int y2 = (y+1) * m_frame->m_nLen;
+            glBegin(GL_POLYGON);
+                glTexCoord2f(0.0, 0.0); glVertex3f(x1, y2, 0.0);
+                glTexCoord2f(0.0, 1.0); glVertex3f(x1, y1, 0.0);
+                glTexCoord2f(1.0, 1.0); glVertex3f(x2, y1, 0.0);
+                glTexCoord2f(1.0, 0.0); glVertex3f(x2, y2, 0.0);
+            glEnd();
+        }
+    }
+    */
+
+        //GL_TEXTURE_RECTANGLE
+
+--------------------------------------------------------
+
+glEnable(GL_LINE_STIPPLE);
+Glushort pattern = 0xfafa;
+glLineStipple(2, pattern);

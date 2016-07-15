@@ -1,0 +1,57 @@
+File
+  new	
+  open
+  save
+  save as
+  import
+  export
+
+Edit
+  undo
+  redo
+  cut
+  copy
+  paste	
+  clear
+
+Image
+  prev
+  next
+  duplicate
+  flip h
+  flip v
+  rotate
+  inverse
+  resize
+  spread	
+  shrink
+  rainbow effect
+  insert
+  delete
+  
+Tools
+  pen
+  flood fill
+  lines
+  line arc
+  circle
+  rectangle
+  color select
+  selection
+  map
+  pen size
+    1..10
+
+View
+  Edit mode
+  Edit zoom
+  Tapestry
+  IsoGrid
+  Transparency
+  Preview
+  Toolbar
+  Statusbar
+  Save Settigns
+
+Help
+  About

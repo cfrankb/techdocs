@@ -1,0 +1,168 @@
+http://developer.qt.nokia.com/faq/answer/how_can_i_do_drag_and_drop_in_a_widget
+http://sector.ynet.sk/qt4-tutorial/dnd.html
+http://doc.qt.nokia.com/stable/qurl.html
+http://doc.trolltech.com/4.2/dnd.html
+http://www.informit.com/articles/article.aspx?p=1405546
+http://sector.ynet.sk/qt4-tutorial/dnd.html
+http://www.qtforum.org/article/35809/qtreewidget-drag-and-drop.html
+http://sector.ynet.sk/qt4-tutorial/dnd.html
+http://doc.qt.nokia.com/latest/qt.html#ItemFlag-enum
+http://www.riverbankcomputing.co.uk/static/Docs/PyQt4/html/qmimedata.html
+qVariant
+http://lists.trolltech.com/qt-interest/2008-07/msg00467.html
+
+http://www.ffuts.org/blog/right-click-context-menus-with-qt/
+
+http://www.qtcentre.org/threads/19919-Custom-context-menu-in-QTreeView
+http://www.ffuts.org/blog/right-click-context-menus-with-qt/
+http://doc.qt.nokia.com/latest/mainwindows-menus.html
+http://www.qtcentre.org/threads/29852-Popup-Menu-not-closing-after-clicking-custom-widget
+http://www.coderprofile.com/networks/code-pin-board/45/context-menu-tree-item-qt
+http://stackoverflow.com/questions/2670045/how-to-set-contextmenu-fro-qtreewidgetitem-in-qt
+http://lists.trolltech.com/qt-interest/2006-02/thread01068-0.html
+http://www.qtcentre.org/threads/19919-Custom-context-menu-in-QTreeView
+
+http://doc.qt.nokia.com/4.7/signalsandslots.html
+http://doc.qt.nokia.com/latest/dialogs-classwizard.html
+
+mainFrame
+  signals:
+    void levelDeleted(int index);
+    void levelMoved(int fromIndex, int toIndex);
+    void levelEdited(int index);
+    void levelSelected(int index);
+
+
+toolbox
+private slots:
+    void editLevel(int index);
+    void selectLevel(int index);
+    void deleteLevel(int index);
+    void addLevel();
+
+http://stackoverflow.com/questions/1095298/gcc-c-linker-errors-undefined-reference-to-vtable-for-xxx-undefined-reference
+http://www.qtforum.org/article/1735/dynamic-menu-slot-problem.html
+http://www.informit.com/articles/article.aspx?p=1405555&seqNum=3
+http://doc.qt.nokia.com/latest/qaction.html#data
+http://doc.qt.nokia.com/qq/qq14-actioneditor.html
+http://doc.qt.nokia.com/latest/qwidget.html#addAction
+
+http://content.gpwiki.org/index.php/Game_Engines
+http://www.riverbankcomputing.co.uk/static/Docs/QScintilla2/classQsciLexerLua.html#a8932efc560175dc70a88e23b8136bb8f
+http://kib2.free.fr/tutos/PyQt4/QScintilla2.html
+http://www.scintilla.org/ScintillaDoc.html
+http://groups.google.com/group/scintilla-interest/browse_thread/thread/e6b316cce6b24692/c02d96253424452f
+
+http://www.kidstrythisathome.com/2011/08/autocompletion-using-pyqt4-and-qscintilla/
+http://blog.gmane.org/gmane.comp.lib.qt.qscintilla/month=20101201
+
+Finalement je pense laisser tomber QScintilla et utiliser un QTextEdit avec QSyntaxHighlighter et QCompleter. J'ai un peu l'impression de réinventer la roue, mais au moins je peux faire exactement ce que je veux.
+ Je pense que QScintilla est vraiment très pratique en utilisant un lexer intégré ou un lexer personnalisé simple.
+ Mais là, je galère trop avec la doc que je trouve parfois incomplète. Il faut se promener entre la doc de pyQScintilla, QScintilla et scintilla, et je retombe souvent sur un truc du genre "ceci est pris en charge par lexer" (en anglais bien sûr), sans expliquer comment l'intégrer dans QsciLexerCustom.
+ J'aime pas trop non plus la syntax: self.SendScintilla(QsciScintilla.SCI_GETLINEENDPOSITION, index), obligatoire pour la majorité des cas.
+
+Citation: Intéressant ton projet. En faire un tuto. pour ici serait pas mal. 
+
+En fait l'intégration se fais sans problème, je me suis aidé d'exemples comme:
+http://code.google.com/p/arduino-pyq...?spec=svn7&r=7
+ ou
+http://trac.compucell3d.net/svn/cc3d...rrorConsole.py
+
+ Pour conclure je pense que QScintilla est capable de faire tout ce que souhaite, mais vu le temps que j'ai passé à décortiquer la doc, j'aurai eu le temps de faire mon propre éditeur (j'exagère un peu).
+
+http://kib2.free.fr/tutos/PyQt4/QScintilla2.html
+
+
+http://juffed.googlecode.com/svn/trunk/
+http://sourceforge.net/projects/juffed/
+http://sourceforge.net/projects/juffed/files/
+http://juffed.googlecode.com/svn/trunk/Qedit_Scite/src/
+
+
+http://www.riverbankcomputing.co.uk/static/Docs/QScintilla2/classQsciAPIs.html
+http://www.developpez.net/forums/d1137284/autres-langages/python-zope/gui/pyside-pyqt/qscintilla-autocompletion/
+http://www.riverbankcomputing.com/pipermail/qscintilla/2010-December/000652.html
+http://www.scintilla.org/ScintillaDoc.html
+http://www.riverbankcomputing.co.uk/static/Docs/QScintilla2/classQsciScintilla.html#_details
+http://kib2.free.fr/tutos/PyQt4/QScintilla2.html
+http://www.riverbankcomputing.co.uk/static/Docs/QScintilla2/classQsciScintilla.html#a48860b20014ce8b044760c055156ba57
+
+http://www.sfml-dev.org/documentation/1.6/namespacesf_1_1Key.php#details
+http://jay-notes.blogspot.com/2007/05/qtkey.html
+http://www.google.com/search?client=opera&rls=en&q=QSyntaxHighlighter&sourceid=opera&ie=utf-8&oe=utf-8&channel=suggest
+
+http://stackoverflow.com/questions/5129211/qcompleter-custom-completion-rules
+
+
+https://groups.google.com/group/leo-editor/browse_thread/thread/57915d7ec2370a84
+https://groups.google.com/groups/profile?enc_user=-yzlmBMAAADW2wp-PBOO6kDeViB5vPJmWMj6vob75xS36mXc24h6ww
+http://webpages.charter.net/edreamleo/front.html
+edreamleo@gmail.com
+
+http://doc.qt.nokia.com/stable/tools-customcompleter.html
+http://www.qtcentre.org/threads/28940-QCompleter-multiple-completion-modes
+http://code.google.com/p/scite-ru/source/browse/trunk/src/scintilla/src/LexLua.cxx?r=1389
+http://scintilla.hg.sourceforge.net/hgweb/scintilla/scintilla/rev/260d206299b8	
+http://www.indigorose.com/forums/threads/31025-Scintilla-Background-Color
+http://www.scintilla.org/ScintillaDoc.html#SCI_GETTABWIDTH
+http://code.google.com/p/scite-for-php/source/browse/trunk/source/scite227/scintilla/cocoa/ScintillaTest/AppController.mm?spec=svn129&r=129
+http://code.google.com/p/textadept/
+http://www.qtcentre.org/archive/index.php/t-8421.html
+
+QModelIndex QCompleter::currentIndex () const
+int QCompleter::currentRow () const
+
+
+http://www.mimec.org/node/304
+http://tortoisesvn.googlecode.com/svn/trunk/src/TortoiseBlame/Lexer.cpp
+http://stackoverflow.com/questions/4118982/customize-the-c-scintilla-lexer
+http://code.google.com/p/qdevelop/source/browse/branches/divius/src/Qsci/Qt4/qscilexer.cpp?spec=svn456&r=456
+http://stackoverflow.com/questions/5129211/qcompleter-custom-completion-rules
+
+
+Mouse cursors
+
+http://www.qtforum.org/article/28060/mouse-cursor-change.html
+http://www.codeprogress.com/cpp/libraries/qt/QtSetMouseCursor.php
+http://doc.qt.nokia.com/4.7/qcursor.html
+http://doc.trolltech.com/3.3/qcursor.html#details
+http://www.qtforum.org/article/28060/mouse-cursor-change.html
+http://stackoverflow.com/questions/6580226/qt-change-cursor-to-hourglass-and-disable-cursors
+
+
+http://stackoverflow.com/questions/177778/in-qt-how-do-i-set-the-background-color-of-a-widget-like-combobox-or-double-spi
+http://lists.trolltech.com/qt-interest/2007-07/thread00075-0.html
+
+
+http://qt-project.org/doc/qt-4.8/dialogs-classwizard.html
+http://qt-project.org/doc/qt-4.8/dialogs-classwizard.html
+http://www.qtcentre.org/threads/21017-Can-you-create-a-custom-multi-page-QWizard-with-QtDesigner
+
+http://www.rw-designer.com/cursor-library/set-0
+ 
+
+
+http://www.infamous-adventures.com/home/
+http://www.dungeons-game.com/content.php?p=downloads
+
+http://openiconlibrary.sourceforge.net/downloads.html
+
+http://forums.activeworlds.com/blog.php?b=757
+
+http://stackoverflow.com/questions/4211419/signals-and-slots-with-qtoolbutton
+http://lists.trolltech.com/qt-interest/2001-08/thread01065-0.html
+
+
+http://www.digitalfanatics.org/projects/qt_tutorial/chapter05.html
+
+
+http://www.qtforum.org/article/26936/qt-toolbox-page-status.html#post93518
+
+http://www.developer.nokia.com/Community/Wiki/How_to_use_QToolBar_and_QToolButton_in_Qt
+
+This function is used to move toolbar in QMainWindow. 
+toolbar->setMovable(1);
+This is used to enable drag and drop toolbar. 
+toolbar->setFloatable(1);
+This is used to know were toolbar is to be place in QMainWindow. 
+toolbar->setAllowedAreas(Qt::AllToolBarAreas);

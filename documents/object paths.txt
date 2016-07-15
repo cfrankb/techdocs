@@ -1,0 +1,113 @@
+OBJECT PATHS
+------------
+
+QString CObject::m_pathList[] = {
+    "Up",  
+    "Down",
+    "Left",
+    "Right",
+    "Up Left", // 4
+    "Up Right",
+    "Down Left",
+    "Down Right",
+    "Jump Up",  // 8
+    "Jump Down",
+    "Jump Left",
+    "Jump Right",
+    "Jump Up Left", // c
+    "Jump Up Right",
+    "Jump Down Left",
+    "Jump Down Right"
+};
+
+Definition: a sequence of movements that is to be executed by an object 
+during game play.
+
+
+EXECUTION MODE
+--------------
+
+0- Absolute: this object will travel the path regardless of constraints
+
+1- conditional: this object will not travel paths that are blocked. simply
+moved on to the next movement defined
+
+2- pending: this object will wait until path is clear to pursue.
+
+3- dead stop: this object will stop execution of the path upon encountering 
+an obstacle
+
+  
+PATH BLOCK
+----------
+
+A path block is a group of paths assigned to an object.
+
+
+PATH TYPE
+---------
+
+A path can be persistent or temporary. Temporary paths are assigned at runtime and 
+usually destroyed upon completion. An example would be the player jumping.
+
+
+DEFAULT / CURRENT PATH
+----------------------
+
+This is path as part of the group which the object is following at the moment. 
+The value will be -1 if no path is assigned
+
+
+EVENT SCRIPTING
+---------------
+
+Events can fired during the execution of the path way.
+(this is going to be for the second version)
+
+
+LUA SCRIPTING
+-------------
+
+setObjectPath(ObjId)
+int getObjectPath(ObjId)
+int addPath(ObjId, array pathData)
+blah
+
+CPP IMPLEMENTATION
+------------------
+
+CLevelEntry
+  ...
+  UINT16 m_blockId (-1 if no block)
+  
+CPathBlock
+  UINT16 m_blockSize 
+  UINT16 m_currentPath (-1 if not applicable)
+
+
+CPath
+  UINT8 m_pathName[16]
+
+  UINT16 m_pathSize
+
+  UINT16 m_pathPtr (current point in seq) 
+
+  UINT8 m_executionMode (0, 1, 2, 3)
+    EXECUTION_ABSOLUTE
+    EXECUTION_CONDITIONAL
+    EXECUTION_PENDING
+    EXECUTION_DEAD_STOP
+  
+  UINT8 m_type (0 persistent, 1 temporary, -1 deleted)
+    PATH_PERSISTENT
+    PATH_TEMPORARY
+    PATH_DELETED	= -1
+
+  UINT8 m_repeat
+    00		no replay
+    01..7f	number of iteration
+    ff		loop infinitely
+
+  UINT8 m_padding
+
+  UCHAR* m_pathData

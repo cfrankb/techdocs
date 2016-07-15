@@ -1,0 +1,16 @@
+http://johnmarinelli.github.io/notes/qt-sfml
+
+http://becomingindiedev.blogspot.ca/2013/10/qt-5-and-sfml-20-integration.html
+ 
+http://en.sfml-dev.org/forums/index.php?topic=11606.0
+
+http://www.sfml-dev.org/tutorials/1.6/graphics-qt.php
+
+http://en.sfml-dev.org/forums/index.php?topic=12193.0
+
+http://becomingindiedev.blogspot.ca/2013/10/qt-5-and-sfml-20-integration.html
+
+https://www.youtube.com/watch?v=T6zrPBRkURI
+
+http://stackoverflow.com/questions/22436995/sfml-2-1-widgets-in-qt
+

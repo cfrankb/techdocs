@@ -1,0 +1,18 @@
+
+
+
+cKillOffScreen
+local s = getSprite(self);
+local sx, sy = getImageSize(s.imageSet, s.imageNo);
+
+if s.y + sy >= BUFFERHEI then
+  s:setState(STATE_DEAD);
+  s:hide();
+end
+
+
+cCreatePlaceholder
+
+cAutomaticGoal
+  CProto::OPTION_AUTO_GOAL
+ 

@@ -1,0 +1,45 @@
+OBL5 FORMAT
+
+VERSION 0x0000500
+
+HEADER
+4	signature (OBL5)
+4 	size / nbr of images 
+4 	version 
+	0x0000500	data is rgba compressed with zlib
+
+OBL5-ENTRY
+
+4	len (pixels, should be a multiple of 8)
+4	hei (pixels, should be a multiple of 8)
+4	filler (should be 0)
+4	compressed data size 
+...	actual data (see header)
+
+----------------------------------------------------------
+
+VERSION 0x0000501
+
+HEADER
+4	signature (OBL5)
+4 	size / nbr of images 
+4 	version 
+	0x0000501	solid zlib (similar to like gzip)
+
+OBL5 IMAGESET HEADER
+4	diskSize (compressed)
+
+IMAGE HEADER [0..n]
+(one for each image)
+2	len (pixels, should be a multiple of 8)
+2 	hei (pixels, should be a multiple of 8)
+
+OBL5 DATA
+... actual data (see diskSize for byte count)
+
+TAGS LIST HEADER
+4   nbr of tags  (should be 0 since tags are not supported)
+
+
+
+

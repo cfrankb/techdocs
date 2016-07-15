@@ -1,0 +1,40 @@
+2013-08-10
+
+sloccount ./lgck-builder ./shared/ -wide
+
+Totals grouped by language (dominant language first):
+cpp:          27411 (99.74%)
+python:          64 (0.23%)
+xml:              8 (0.03%)
+ 
+SLOC	Directory	SLOC-by-Language (Sorted)
+17065   shared          cpp=17065
+10741   lgck-builder    cpp=10669,python=64,xml=8
+5298    obl5edit        cpp=5056,sh=242
+4931    easyDoc         cpp=4931
+
+
+Totals grouped by language (dominant language first):
+cpp:          37721 (99.17%)
+sh:             242 (0.64%)
+python:          64 (0.17%)
+xml:              8 (0.02%)
+
+
+------------------------------------------------
+
+sloccount shared/ lgck-builder/ obl5edit/ tools/ easydoc/ 
+
+SLOC	Directory	SLOC-by-Language (Sorted)
+25213   shared          cpp=25213
+11544   lgck-builder    cpp=11536,xml=8
+5290    easydoc         cpp=5290
+5142    obl5edit        cpp=5142
+1063    tools           python=629,cpp=418,sh=16
+
+
+Totals grouped by language (dominant language first):
+cpp:          47599 (98.65%)
+python:         629 (1.30%)
+sh:              16 (0.03%)
+xml:              8 (0.02%)

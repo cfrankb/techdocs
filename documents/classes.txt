@@ -1,0 +1,41 @@
+00 Background,0
+01 Antigravity,0
+02 Water,0
+03 Metal Ladders,0
+0a Solid (aim down only),1
+0b Revert to background,1
+0c Trailers - trail,1
+0d Immediate deadly,0
+0e Solid Background,0
+0f Stop,1
+10 Animated things,0
+11 Pickup Triggers,0
+12 Inventory Item (ex. Keys),0
+13 Open to owner (i.e. Doors),0
+14 Teleport pad,0
+15 Teleport destination,0
+16 Z-Key Switch,0
+1d Animate Once,0
+1e Solid animated,0
+1f Player Object,0
+20 Generic COS,0
+21 Generic COS - complex,0
+22 Drone UP/DOWN,0
+23 Drone LEFT/RIGHT,0
+24 Drop Down Stone,0
+25 Bouncing Block,0
+26 Mover,0
+27 Vampire Plant Solid,0
+28 Boulder,0
+2c Wacker UP/DOWN,0
+2d Wacker LEFT/RIGHT,0
+2e Platform UP/DOWN,0
+2f Platform LEFT/RIGHT,0
+30 Generic COS - Aware,0
+40 Player Bullet,0
+41 Creature Bullet,0
+f0 Trail UP,0
+f1 Trail DOWN,0
+f2 Trail LEFT,0
+f3 Trail RIGHT,0
+ 

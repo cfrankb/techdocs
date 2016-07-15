@@ -1,0 +1,5 @@
+http://www.winimage.com/zLibDll/minizip.html
+
+http://zziplib.sourceforge.net/zzip-file.html
+
+http://www.nih.at/libzip/

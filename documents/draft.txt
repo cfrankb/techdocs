@@ -1,0 +1,35 @@
+    /*
+    if (!m_doc.getFileName().isEmpty()) {
+        QFileInfo fi(m_doc.getFileName());
+        QString suffix = fi.completeSuffix();
+        if (suffix.toLower()=="png"){
+            selected = pngFilter;
+        }
+    }
+    */
+
+    //QFileDialog * dlg = new QFileDialog(this,tr("Save As"),"",selected);
+
+        //selectedFilter = dialog.selectedFilter();
+        //qDebug("dfsdsd");
+         //dlg->selectFile(fileName);
+
+    //QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"), m_doc.getFileName(), fileFilter, &selected);
+
+        /*
+        QFileInfo fi(fileName);
+        QString suffix = fi.completeSuffix().toLower();
+        if (selected==oblFilter) {
+            if (suffix!="obl" && suffix!="obl5") {
+                suffix="obl";
+            }
+        } else {
+            if (suffix!="png") {
+                suffix="png";
+            }
+        }
+
+        QString tmp = fi.absolutePath() + fi.baseName() + "." + suffix;
+        qDebug("[%s] %s", q2c(selected), q2c(tmp));
+        */
+ 

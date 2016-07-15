@@ -1,0 +1,144 @@
+http://en.sfml-dev.org/forums/index.php?topic=5948.msg43437#msg43437
+
+RoberTwoD 
+Newbie
+
+Posts: 2
+  
+ 
+Using SFML in a resizable QT-Widget 
+«  on: September 25, 2011, 03:54:39 PM »
+Quote
+Hi,
+
+I'm new to SFML and QT, so I tryed out the SFML Tutorial "Integration of SFML in QT Interface" with X11 (on Ubuntu/Linux).
+This actually worked well for a static QSFMLCanvas, which size doesnt change. 
+But when I resize the "QSFMLCanvas", the underlying sf::RenderWindow does not do the same. 
+It keeps its old values for width and height.
+I did not change the code of the example, please help me... 
+Report to moderator    Logged 
+RoberTwoD 
+Newbie
+
+Posts: 2
+  
+ 
+Using SFML in a resizable QT-Widget 
+« Reply #1 on: September 26, 2011, 01:35:04 PM »
+Quote
+Or in other words. How can I use SFML in a QWidget with dynamic size...
+Report to moderator    Logged 
+DevilWithin 
+Full Member
+
+ 
+Posts: 202
+ 
+  
+ 
+Using SFML in a resizable QT-Widget 
+« Reply #2 on: September 27, 2011, 12:41:23 AM »
+Quote
+Firstly, the sf::RenderWindow should always fit the client area of the widget.
+
+That means the rect that can draw things, coincides with the widget's rect, except for some possible border/margin.
+
+Since the sf::RenderWindow took an external window handle, it should work as a proxy for the real window(the qt widget), meaning that if the widget resizes, its slave RenderWindow should get the Resize event too!
+
+Once you catch that event, you just need to act acordingly, which normally means configuring the view for the new size! 
+
+Hope it helps!
+Report to moderator    Logged 
+My 2D game-making framework:
+http://parabolaengine.comlu.com
+
+Follow me: http://codetimestories.blogspot.com/
+iforce2d 
+Newbie
+
+Posts: 4
+  
+ 
+Using SFML in a resizable QT-Widget 
+« Reply #3 on: December 27, 2011, 04:06:48 PM »
+Quote
+I'm using the latest snapshot of 2.0 and can't get this to work either. In a normal standalone window in the main message loop it works great with glViewport and sf::RenderWindow::SetView, like this:
+Code: [Select]
+if (event.Type == sf::Event::Resized) {
+    glViewport(0, 0, event.Size.Width, event.Size.Height);
+    window.SetView( sf::View( sf::FloatRect(0,0,window.GetWidth(),window.GetHeight()) ) );
+} 
+
+So I figured that when the resize event comes from the Qt widget, you would do the same, like this:
+Code: [Select]
+void QSFMLCanvas::resizeEvent( QResizeEvent * event )
+{
+    int newWidth = event->size().width();
+    int newHeight = event->size().height();
+
+    glViewport( 0, 0, newWidth, newHeight );
+    SetView( sf::View( sf::FloatRect(0,0,newWidth, newHeight) ) );
+
+    QWidget::resizeEvent(event);
+} 
+
+But it seems that the extent of the drawn region does not change. Here is what it looks like when the application first starts:
+
+
+
+... and this is after resizing the window a little. It looks like the RenderWindow itself is filling the widget correctly because the green background from the Clear() is there, but the stuff that I am drawing never gets out of the original region it started in.
+
+
+
+I discovered that I can use sf::RenderWindow::SetViewport to get what I want, but this is a bit inconvenient because it seems to require the ratio to the original window dimensions. For example, if my widget's starting dimensions are 149x115, this will work ok:
+Code: [Select]
+    sf::View newView(sf::FloatRect(0,0,newWidth, newHeight) );
+    newView.SetViewport( sf::FloatRect( 0,0, newWidth / 149.f, newHeight / 115.f ) );
+    SetView( newView ); 
+
+
+and gives me the behavior I want:
+
+
+
+... but it seems unusually inconvenient for SFML where everything else is easy 
+Am I missing something?
+Report to moderator    Logged 
+iforce2d 
+Newbie
+
+Posts: 4
+  
+ 
+Using SFML in a resizable QT-Widget 
+« Reply #4 on: December 27, 2011, 07:24:27 PM »
+Quote
+Okay, I discovered something else. I can put the same code I had in the main message loop of the standalone app, into the OnUpdate() function of the widget, like this:
+
+Code: [Select]
+void MyCanvas::OnUpdate()
+{
+    sf::Event event;
+    while ( PollEvent(event) )
+    {
+        if ( event.Type == sf::Event::Resized ) {
+            glViewport(0, 0, event.Size.Width, event.Size.Height);
+            SetView( sf::View( sf::FloatRect(0,0,m_GetWidth,m_GetHeight) ) );
+        }
+
+        // ... check mouse and keys etc
+    }
+} 
+
+
+Maybe this is bad practice, I don't know. But it works ok so far and I like it because I can use almost the exact same code when I detach this from the Qt framework.
+If anybody has any reason why this may be bad please let me know  
+
+ 
+
+
+--------------------------------------------------------------------------
+
+http://en.sfml-dev.org/forums/index.php?topic=6170.msg50217#msg50217
+
+
