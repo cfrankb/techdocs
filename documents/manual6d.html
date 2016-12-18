@@ -1,0 +1,5742 @@
+<html>
+ <head>
+  <style type="text/css">
+   div.hdr0 {color:black; font-weight: bold; font-size: 16pt; border-bottom:thick dotted #000000; font-family:Verdana, Arial}
+   div.hdr1 {color:black; font-weight: bold; font-size: 14pt; border-bottom: 1px solid; font-family:Verdana, Arial }
+   div.hdr2 {color:black; font-weight: bold; font-size: 12pt; font-family:Verdana, Arial }
+   div.hdr3 {color:black; font-weight: bold; font-style:italic; xborder-bottom:dotted; font-family:Verdana, Arial; xwidth:500px }
+   div.fnUndef {cfont-size: 9pt; color:orange; font-weight: bold; border-top-width:thin; border-left-width:thin; border-style:solid; }
+   div.fnTba {font-size: 9pt; color:brown; font-weight: bold; border-top-width:thin; border-left-width:thin; border-style:solid; width: 100%; }
+   div.fnUntested {font-size: 9pt; color:gray; font-weight: bold; border-style:solid; border-top-width:thin; border-left-width:thin;}
+   div.fnFinal {font-size: 9pt; color:blue; font-weight: bold; border-left-width:thin; border-top-width:thin; border-style:solid;  xbackground-color:yellow; xborder-color: black }
+   div.code {border-left-width:thin; xmargin-top:1em; border-style:solid; border:2px dotted black;background:#eee; padding-left:20px; padding-bottom:20px; padding-top:10px; }
+   pre.pageBody {width : 540px; font-size:12px;}
+   span.typeany {font-weight: bold; font-style:italic; color:blue}
+   span.typevoid {font-weight: bold; font-style:italic; color:black}
+  </style>
+ </head>
+ <body>
+  <pre class=pageBody>
+<div class=hdr0>About this document</div>
+
+The purpose of this document is to give everyone, interrested in LGCK, something 
+to work with when developing event scripts. 
+
+<div class=hdr3>Function color</div>
+
+Functions in blue have been tested and they're known to work.
+
+Those marked in orange or red have either not been implemented, don't work or 
+haven't been fully tested. Some of them are simply under consideration. 
+
+Best usage of this document is to use the examples provided.
+
+<div class=hdr3>Wrapper classes </div>
+
+Wrapper classes provide nice encapsulation of LGCK object for use in a scripting 
+context. However, modifying wrapper properties (such as x, y or aim) will not 
+modify the corresponding LGCK objects. You have to use the provided methods for 
+that, such as :moveTo or :moveBy.
+
+<div class=hdr3>Conventions</div>
+
+semi-colons as marker for methods
+
+<div class=code>
+Layer:getSize() 
+</div>
+
+dots as marker for properties.
+
+<div class=code>
+Sprite.x
+Sprite.aim
+</div>
+
+all caps for constants
+
+<div class=code>
+UP
+DOWN
+LEFT
+RIGHT
+</div>
+
+<div class=hdr3> Special notes</div>
+
+The game engine recognizes many objects. These objects are numbered by their 
+ObjectType (or ObjType) and can be referenced to by the OBJECT_XXXX constants. 
+A type refers to an object not an instance.
+
+An object instance (also called a sprite) is simply an occurence of the object 
+found on a level.  ObjId (or ObjectId) refers to a specific instance of an 
+object. Each of these occurences will have special properties such as a trigger 
+key, visibility, frozen and goal attributs. In an object event handler, the 
+objectId will always be available via the local variable `self`. (see examples)
+
+
+
+<div class=hdr0>Event logic</div>
+
+function event_obj_1_onSpawn (self,  ticks)
+end
+
+  IN: [[ int ]] self
+      [[ int ]] ticks
+
+  OUT:  na
+
+  self  	objId which is handling the event
+  ticks 	internal time counter (1 tick = 1/60 of second)
+
+<div class=code>
+ -- this a simple ai for a drone monster that moves LEFT/RIGHT. 
+
+unMapSprite(self);
+
+if canFall ( self) then
+  moveSprite( self, DOWN)  ;
+  playSound ("FALL");
+else
+  if ticks % 5 == 0 then
+    local x;
+    local y;
+    local aim;
+
+    x , y, aim = getSpriteVars(self)
+
+    if isPlayerThere(self, aim) then
+      attackPlayer ( self );
+    end
+
+    if aim < LEFT or aim > RIGHT then
+      aim = LEFT
+    end
+
+    if canMove(self, aim) then
+      moveSprite(self, aim);
+      if canFall(self) then
+	aim = 5 - aim;
+	moveSprite(self, aim);
+      end 
+    else
+	aim = XOR(aim, 1);      
+    end
+
+    setAim ( self, aim );
+
+  end 
+end
+
+mapSprite(self);
+</div>
+
+
+
+<div class=hdr0>LGCK event model</div>
+
+<div class=hdr1>level</div>
+
+<div class=hdr2>onCreate</div>
+This method is called when the level is first created.
+
+<div class=hdr2>onDraw</div>
+This method is called when it's time to draw the screen. 
+
+<div class=hdr2>onRestart</div>
+This method is  called when the level is restarted.
+
+<div class=hdr2>onGoalCollected</div>
+This method is called when all the goals are collected just before the level is 
+completed
+
+<div class=hdr2>onGoalKilled</div>
+This method is called when a sprite marked as a goal is killed.
+
+<div class=hdr2>onLevelCompleted</div>
+This method is called just before moving to the next level.
+
+<div class=hdr2>onTimeOut</div>
+This method is called when timeLeft reaches zero.
+
+<div class=hdr2>onKeyPressed</div>
+This method is called when a key is presed. Use getLastKey() to retrieve the 
+keyCode.
+
+<div class=hdr2>onKeyUp</div>
+This method is called when a key is released.  Use getLastKey() to retrieve the 
+keyCode.
+
+
+<div class=hdr1>sprite</div>
+
+<div class=hdr2>onSpawn</div>
+This method is called when this object is created ( respawns included ).
+
+<div class=hdr2>onActivate</div>
+This method is called when this object is activated.
+
+<div class=hdr2>onDeath</div>
+This method is called when this object is destroyed (death, picked up etc.)
+
+<div class=hdr2>onHurt</div>
+This method is called when this object is hurt. Only applies to player at the 
+moment.
+
+<div class=hdr2>onTouch</div>
+This method is called when the player touches this object.
+
+<div class=hdr2>onTrigger</div>
+This method is  when a trigger is called on this object. Trigger key on this 
+object must match that of the source for this event to be called.
+
+<div class=hdr2>onHandler</div>
+This method is called when the object handler is called. You can use this method 
+to redefine the custom monster class for example.
+
+<div class=hdr2>onSplat </div>
+This method is called  when the player falls on this object.
+
+<div class=hdr2>onHitTest</div>
+This method is called when the player hit this object from below. (player aim 
+supplied)
+
+<div class=hdr2>onZKey</div>
+This method is called z-key action performed on this object
+
+<div class=hdr2>onAuto</div>
+This method is executed when automated timer rings
+
+<div class=hdr2>onLeftClick</div>
+This method is called when the player left click on this sprite
+
+<div class=hdr2> onRightClick</div>
+This method is called when the player right click on this sprite
+
+<div class=hdr2>onPowerUp ???</div>
+tba
+
+<div class=hdr2> onJump</div>
+This method is called when the player jumps. 
+
+<div class=hdr2>onFall</div>
+This method is called then object falls. 
+
+<div class=hdr2>onLanding</div>
+This method is called when the object lands after a fall.
+
+<div class=hdr2>onLeap</div>
+This method is called when object performs as leap. Similar to onMove.
+
+<div class=hdr2>onMove</div>
+This method is called when the object is moving (e.g. walking). This is 
+currently only implemented for the player.
+
+<div class=hdr2>onFire</div>
+This method is called  when the player/monster is firing.
+
+
+
+<div class=hdr0>class Counters</div>
+
+
+<a name="Counters:add"></a><div class=fnUndef> Counters:add()</div>
+  IN:  <span class="typeany">string</span> name
+       <span class="typeany">int</span> variance
+
+  OUT: <span class="typeany">int</span> new_value
+
+
+
+
+<a name="Counters:dec"></a><div class=fnFinal> Counters:dec()</div>
+  IN:  <span class="typeany">string</span> name
+
+  OUT: <span class="typeany">int</span> new_value
+
+
+
+
+<a name="Counters:get"></a><div class=fnFinal> Counters:get()</div>
+  IN:  <span class="typeany">string name</span> 
+
+  OUT: <span class="typeany">int</span> 
+
+<div class=hdr3>description:</div>
+
+Get the value of given counter.
+
+
+
+<a name="Counters:inc"></a><div class=fnFinal> Counters:inc()</div>
+  IN:  <span class="typeany">string</span> name
+
+  OUT: <span class="typeany">int</span> new_value
+
+
+
+
+<a name="Counters:set"></a><div class=fnFinal> Counters:set()</div>
+  IN:  <span class="typeany">string</span> name
+       <span class="typeany">int</span> value
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Set the value of a given counter.
+
+
+
+<div class=hdr0>class Debug</div>
+
+<div class=hdr3>description</div>
+This class provides wrapper for common debugging functions. It helps finding 
+bugs by allowing direct manipulation of the debug console.
+
+<div class=code>
+Debug:printf("The result of 1 + 1 = %d", 1 + 1);
+</div>
+
+
+
+<a name="Debug:clear"></a><div class=fnFinal> Debug:clear()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+clear the debug console.
+
+<div class=code>
+Debug:clear();
+</div>
+
+THIS FUNCTION IS UNSTABLE.
+
+
+
+<a name="Debug:hide"></a><div class=fnFinal> Debug:hide()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+hide the debug console.
+
+example:
+
+<div class=code>
+Debug:hide();
+</div>
+
+
+
+<a name="Debug:printf"></a><div class=fnFinal> Debug:printf()</div>
+  IN:  <span class="typeany">string</span> fmt
+
+  OUT: <span class="typeany">string</span> 
+
+<div class=hdr3>description:</div>
+
+works just like the regular C printf excepts that all text strings go to the 
+debug console.
+
+<div class=code>
+Debug:printf("1 + 1 = %d", 2);
+</div>
+
+
+
+<a name="Debug:show"></a><div class=fnFinal> Debug:show()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+show the debug console.
+
+<div class=code>
+Debug:show();
+</div>
+
+
+
+<div class=hdr0>class Display</div>
+
+<div class=hdr3>description</div>
+Displays are overlays on top of the game screen. These can be scores, lives, 
+points or other messages to be passed on to the player during the game.
+
+default displays are
+
+<div class=code>
+timeLeft
+score
+debug
+pause
+</div>
+
+These can be customized using lua scripting.
+
+<div class=hdr3>members</div>
+     int id The unique identifer of this display.
+
+<a name="Display:enableShadows"></a><div class=fnFinal> Display:enableShadows()</div>
+  IN:  <span class="typeany">bool</span> toggle
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Enable the shadow under this display. Only applies to text only. If `toggle` is 
+set to true the shadows are displayed otherwise they're not. You can use other 
+methods to redefine how the shadows are shown.
+
+<div class=code>
+local display = getDisplayByName("message");
+display:enableShadows(true);
+</div>
+
+
+
+<a name="Display:expire"></a><div class=fnUntested> Display:expire()</div>
+  IN:  <span class="typeany">int</span> time
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+another alias from Display:setExpireTime()
+
+
+
+<a name="Display:hide"></a><div class=fnFinal> Display:hide()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Hide this display.
+
+example
+<div class=code>
+local display = getDisplayByName("timeLeft");
+display:hide();
+</div>
+
+
+
+<a name="Display:move"></a><div class=fnFinal> Display:move()</div>
+  IN:  <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+this is another alias from Display:setXY
+
+
+
+<a name="Display:remove"></a><div class=fnFinal> Display:remove()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="Display:setAlpha"></a><div class=fnFinal> Display:setAlpha()</div>
+  IN:  <span class="typeany">int</span> alpha
+
+  OUT: void
+
+
+
+
+<a name="Display:setColor"></a><div class=fnFinal> Display:setColor()</div>
+  IN:  <span class="typeany">int</span> r
+       <span class="typeany">int</span> g
+       <span class="typeany">int</span> b
+       <span class="typeany">int</span> a
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+This function changes the color of the text contained in the display.
+
+<div class=code>
+local score = getDisplayByName("score");
+score:setColor(0xff, 0xff, 0xff, 0x80);
+score:setFontSize(24);
+</div>
+
+
+
+<a name="Display:setContent"></a><div class=fnFinal> Display:setContent()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+same as setText
+
+
+
+<a name="Display:setExpireTime"></a><div class=fnUntested> Display:setExpireTime()</div>
+  IN:  <span class="typeany">int</span> time
+
+  OUT: void
+
+
+
+
+<a name="Display:setFontSize"></a><div class=fnFinal> Display:setFontSize()</div>
+  IN:  <span class="typeany">int</span> pxSize
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Change the font size of a given text display.
+
+<div class=code>
+local display = getDisplayByName("message");
+display:setFontSize(20);
+</div>
+
+
+
+<a name="Display:setShadowColor"></a><div class=fnFinal> Display:setShadowColor()</div>
+  IN:  <span class="typeany">int</span> red
+       <span class="typeany">int</span> green
+       <span class="typeany">int</span> blue
+       <span class="typeany">int</span> alpha
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+set the color of the shadow under the text in the display. works for text-only 
+display and ony if shadows have been enabled.
+
+<div class=code>
+display:setShadowColor(255, 32, 32, 255);
+</div>
+
+
+
+<a name="Display:setShadowOffset"></a><div class=fnFinal> Display:setShadowOffset()</div>
+  IN:  <span class="typeany">int</span> tx
+       <span class="typeany">int</span> ty
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+changes the relative position of the shadow under the text. works only in text-
+only display and only if the shadow was enabled (see. enableShadow(...).
+
+<div class=code>
+display:setShadowOffset(1,1);
+</div>
+
+
+
+<a name="Display:setSize"></a><div class=fnFinal> Display:setSize()</div>
+  IN:  <span class="typeany">int</span> pxSize
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+This is an alias Display:setFontSize().
+
+<div class=code>
+display:setSize(40);
+</div>
+
+
+
+<a name="Display:setText"></a><div class=fnFinal> Display:setText()</div>
+  IN:  <span class="typeany">string</span> text
+
+  OUT: void
+
+
+
+
+<a name="Display:setType"></a><div class=fnUntested> Display:setType()</div>
+  IN:  <span class="typeany">int</span> displayType
+
+  OUT: void
+
+
+
+
+<a name="Display:setXY"></a><div class=fnFinal> Display:setXY()</div>
+  IN:  <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+This is just an alias for :move.
+
+
+
+<a name="Display:show"></a><div class=fnFinal> Display:show()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Show this display.
+
+example
+<div class=code>
+local display = getDisplayByName("timeLeft");
+display:show();
+</div>
+
+
+
+<a name="Display:sizeText"></a><div class=fnFinal> Display:sizeText()</div>
+  IN:  <span class="typeany">string</span> text*
+
+  OUT: <span class="typeany">int</span> size
+
+<div class=hdr3>description:</div>
+
+Returns the text size inside a display. The text is optional. If omitted, it 
+will be taken from the display itself.
+
+
+
+<div class=hdr0>class Element</div>
+
+<div class=hdr3>description</div>
+Elements are visual components on layers other than main. They can be 
+manipulated by  programming through the Element class at runtime. Used in 
+concert with Layer, this functionality provided a powerful way of controlling 
+the paralax scrolling and other multi-layer game visual effects.
+
+
+
+<div class=hdr3>members</div>
+     int x 
+     int y 
+     bool show 
+     int imageSet 
+     int imageNo 
+     int id 
+
+<a name="Element:hide"></a><div class=fnUntested> Element:hide()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Hide this element.
+
+
+
+<a name="Element:move"></a><div class=fnUntested> Element:move()</div>
+  IN:  <span class="typeany">int</span> aim
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+Move this element to the direction of the given `aim`. This will change the 
+position by eight pixel in one of following direction. These constants cannot 
+be combined.
+
+<div class=code>
+UP
+DOWN
+LEFT
+RIGHT
+</div>
+
+
+
+<a name="Element:moveBy"></a><div class=fnFinal> Element:moveBy()</div>
+  IN:  <span class="typeany">int</span> tx
+       <span class="typeany">int</span> ty
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Move the element by translation. The new position is the result of `x = x + tx` 
+and `y = y + ty`. 
+
+<div class=code>
+local layer = getLayer( "fw");
+
+for i=1, layer:getSize()  do
+
+  local t = rand () % 8;
+
+  local e = layer:getElement( i - 1);
+  if (e.y > BUFFERHEI) then
+    e:moveTo(rand() % BUFFERLEN, (rand() % BUFFERHEI) - BUFFERHEI);
+  else
+     if (t == 0) then
+       e:moveBy(1, 0);
+     end
+
+     if (t == 7) then
+        e:moveBy(-1, 0);
+     end
+
+     e:moveBy(0, 4);
+  end
+
+end
+</div>
+
+
+
+<a name="Element:moveTo"></a><div class=fnFinal> Element:moveTo()</div>
+  IN:  <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Move this element to a new position.
+
+<div class=code>
+e:moveTo(100, 100)
+</div>
+
+
+
+<a name="Element:setImage"></a><div class=fnUntested> Element:setImage()</div>
+  IN:  <span class="typeany">int</span> imageSet
+       <span class="typeany">int</span> imageNo
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Change the image assigned to a given element.
+
+
+
+<a name="Element:show"></a><div class=fnUntested> Element:show()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<div class=hdr0>class Extra</div>
+
+<div class=hdr3>description</div>
+Extra provides a wrap for the sprite runtime information which is used by the 
+engine to manage it.
+
+<div class=code>
+local extra = getExtra(self);
+</div>
+
+<div class=hdr3>members</div>
+     int objId 
+     int orgProto 
+     int orgX 
+     int orgY 
+     int hp 
+     int oldAim1 
+     int oldAim2 
+     int fallHeight 
+     int lives 
+     int active 
+     int bulletCount 
+     int owner 
+     int flags 
+     int pathDir 
+     int pathPtr 
+     int animSeq 
+     int animPtr 
+     int animSpeed 
+     int deathIndicator 
+
+
+
+
+
+<div class=hdr0>class Global</div>
+
+
+<a name="Global:getInt"></a><div class=fnTba> Global:getInt()</div>
+  IN:  <span class="typeany">string</span> name
+
+  OUT: <span class="typeany">int</span> 
+
+
+
+
+<a name="Global:getString"></a><div class=fnTba> Global:getString()</div>
+  IN:  <span class="typeany">string</span> value
+
+  OUT: <span class="typeany">string</span> 
+
+
+
+
+<a name="Global:setInt"></a><div class=fnTba> Global:setInt()</div>
+  IN:  <span class="typeany">string</span> name
+       <span class="typeany">int</span> value
+
+  OUT: void
+
+
+
+
+<a name="Global:setString"></a><div class=fnTba> Global:setString()</div>
+  IN:  <span class="typeany">string</span> name
+       <span class="typeany">string</span> value
+
+  OUT: void
+
+
+
+
+<div class=hdr0>class HitTest</div>
+
+<div class=hdr3>description</div>
+The HitTest class contains the results of the hit test performed by getHitTest().
+ That information is a bit mangled so this class provides a wrapper to make it 
+easier to work with.
+
+bkCount is just a count of the number of entries in the bkClass array. The same 
+information can be had using the pound operator (e.g. #bkClass). The same can 
+be said for fwCount and acCount. 
+
+fwEntry and acEntry are arrays of objIds. They represent sprites. 
+
+If you wanted more information on any of them you could use the Sprite object 
+wrapper.
+
+<div class=code>
+local ht = getHitTest(self, UP);
+local sprite = getSprite ( ht.fwEntry [ i ]  );
+</div>
+
+
+
+
+
+<div class=hdr3>members</div>
+     int bkCount 
+     array bkClass 
+     int fwCount 
+     array fwClass 
+     array fwEntry 
+     int acCount 
+     array acClass 
+     array acEntry 
+     int flags 
+     bool player 
+
+
+
+
+
+<div class=hdr0>class Inventory</div>
+
+<div class=hdr3>description</div>
+The Inventory is a subset of objects that the player can carry with him/her. 
+Adding a new object to the inventory allows for specific interractions. (the 
+term object refers to an object and not an instance, which is althogether 
+different)
+
+
+
+
+<a name="Inventory:addItem"></a><div class=fnUndef> Inventory:addItem()</div>
+  IN:  <span class="typeany">int</span> objType
+
+  OUT: void
+
+
+
+
+<a name="Inventory:hasItem"></a><div class=fnUndef> Inventory:hasItem()</div>
+  IN:  <span class="typeany">int</span> objType
+
+  OUT: <span class="typeany">bool</span> result
+
+
+
+
+<a name="Inventory:removeItem"></a><div class=fnUndef> Inventory:removeItem()</div>
+  IN:  <span class="typeany">int</span> objType
+
+  OUT: void
+
+
+
+
+<a name="Inventory:reset"></a><div class=fnUndef> Inventory:reset()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<div class=hdr0>class Layer</div>
+
+<div class=hdr3>description</div>
+Layer are broken into distinct group: background and foreground. The former are 
+displayed behing the main layer, while the later are on top. The Layer allows 
+for direct manipulation of all layers other than main. 
+
+Objects on the main layer are sprites and are accessible through the Sprite 
+interface.
+
+<div class=hdr3>members</div>
+     int id The unique identifier of this layer.
+     string name 
+     int type 
+
+<a name="Layer:addElement"></a><div class=fnFinal> Layer:addElement()</div>
+  IN:  <span class="typeany">int</span> ImageSet
+       <span class="typeany">int</span> imageNo
+       <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+       <span class="typeany">bool</span> show*
+
+  OUT: <span class="typeany">Element</span> 
+
+<div class=hdr3>description:</div>
+
+Create a new Element on this layer. This function returns an Element object.
+
+If show is omited, it is assumed to be false. This causes the element to be 
+invisible by default.
+
+<div class=code>
+local layer = getLayer( "fw");
+
+local element = layer:addElement(IMAGES_WHITEBALL_PNG, 0, 100, 100, true);
+
+for i=1, 10 do
+ local e = layer:addElement( IMAGES_WHITEBALL_PNG, 0, rand() % BUFFERLEN, (rand()
+ % BUFFERHEI) - BUFFERHEI, true ) ;
+
+end
+</div>
+
+
+
+<a name="Layer:clear"></a><div class=fnFinal> Layer:clear()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Clear the layer.
+
+<div class=code>
+local layer = getLayer( "fw");
+layer:clear();
+</div>
+
+
+
+<a name="Layer:delete"></a><div class=fnUndef> Layer:delete()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Remove this layer. (this may invalidate the other layer id)
+
+
+
+<a name="Layer:getElement"></a><div class=fnFinal> Layer:getElement()</div>
+  IN:  <span class="typeany">int</span> index
+
+  OUT: <span class="typeany">Element</span> 
+
+<div class=hdr3>description:</div>
+
+returns an Element from this layer.
+
+
+
+<a name="Layer:getSize"></a><div class=fnFinal> Layer:getSize()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> size
+
+<div class=hdr3>description:</div>
+
+return the element count for the given layer.
+
+<div class=code>
+local layer = getLayer( "fw");
+Debug:printf("layer size: %d", layer:getSize());
+</div>
+
+
+
+<a name="Layer:setSpeed"></a><div class=fnUndef> Layer:setSpeed()</div>
+  IN:  <span class="typeany">int</span> hSpeed
+       <span class="typeany">int</span> vSpeed
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Set the scroll speed of this layer.
+
+Valid values include
+
+<div class=code>
+        SPEED_NOSCROLL,
+        SPEED_WHOLE,
+        SPEED_1_2,
+        SPEED_1_4,
+        SPEED_1_8,
+        SPEED_1_16,
+        SPEED_1_32
+</div>
+
+
+
+<div class=hdr0>class Proto</div>
+
+<div class=hdr3>description</div>
+Proto is the object property sheet. It represents the sum of all the information 
+that is defined within the editor.
+
+You can get an instance of Proto through the getProto() method of Sprite or the 
+global getProto() functions. See relevant documentation for details.
+
+<div class=hdr3>members</div>
+     string name 
+     int noSmartMap 
+     int jumpMode 
+     int maxFall 
+     int imageSet 
+     int imageNo 
+     int moveSpeed 
+     int aniSpeed 
+     int defaultAim 
+     int points 
+     int buddy 
+     int options 
+     int chProto 
+     int chSound 
+     int fallSpeed 
+     int damages 
+     int bonusHP 
+     int powerLevel 
+     int rebirthDelay 
+     int rebirths 
+     int autoProto 
+     int autoBullet 
+     int autoSound 
+     int autoTrigger 
+     int hp 
+     int autoProtoTime 
+     int autoBulletTime 
+     int autoSoundTime 
+     int autoTriggerTime 
+     int maxBullets 
+     int fireRate 
+     int extra1 
+     int extra2 
+
+
+
+
+
+<div class=hdr0>class Sprite</div>
+
+<div class=hdr3>description</div>
+The Sprite class is a lua wrapper for LGCK's Sprite object.
+
+It allows direct manipulation of the engine data through the member functions.
+
+Directly modifying member variables in a lua object doesn't modify the engine 
+object however. Please use the appropriate member functions for that.
+
+This is a how to get an instance of the Sprite class in an event handlers.
+<div class=code>
+local sprite = getSprite( self );
+</div>
+
+<div class=hdr3>members</div>
+     int x 
+     int y 
+     int aim 
+     int triggerFlag 
+     int stateFlag 
+     int actionMask 
+     int imageSet 
+     int imageNo 
+     int objType 
+     int id 
+     string name 
+     int class 
+
+<a name="Sprite:activate"></a><div class=fnUntested> Sprite:activate()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Activate this sprite.  Inactive sprite do not consume their handlers until they 
+are activated. Activation can be automatic or manual via scripting using this 
+function.
+
+<div class=code>
+local sprite = getSprite(self);
+if sprite:isVisible() then
+  sprite:activeSprite();
+end
+</div>
+
+
+
+<a name="Sprite:addItem"></a><div class=fnUndef> Sprite:addItem()</div>
+  IN:  <span class="typeany">int</span> protoID
+
+  OUT: void
+
+
+
+
+<a name="Sprite:attackPlayer"></a><div class=fnFinal> Sprite:attackPlayer()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="Sprite:callEvent"></a><div class=fnFinal> Sprite:callEvent()</div>
+  IN:  <span class="typeany">int</span> event
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Call an event handler for this sprite. 
+
+<div class=code>
+local player = getPlayer();
+player:callEvent( EO_DEATH );
+</div>
+
+For complete list of all available events see callObjEvent() for details.
+
+
+
+<a name="Sprite:canFall"></a><div class=fnFinal> Sprite:canFall()</div>
+  IN:  void
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+This function returns true if the sprite can fall. 
+
+<div class=code>
+local s = getSprite( self );
+local tmp = copySprite ( s );
+
+local fall = 0;
+while tmp:canFall() do
+  tmp:move( DOWN );
+  fall = fall + 1;
+end
+
+tmp:clear();
+
+if fall < 20 then
+  playSound("short fall.ogg");
+else
+  playSound("fall.ogg");
+end
+
+</div>
+
+
+
+<a name="Sprite:canMove"></a><div class=fnFinal> Sprite:canMove()</div>
+  IN:  <span class="typeany">int</span> aim
+
+  OUT: <span class="typeany">bool</span> 
+
+
+
+
+<a name="Sprite:changeTo"></a><div class=fnFinal> Sprite:changeTo()</div>
+  IN:  <span class="typeany">int</span> objType
+
+  OUT: void
+
+
+
+
+<a name="Sprite:childCount"></a><div class=fnFinal> Sprite:childCount()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> count
+
+<div class=hdr3>description:</div>
+
+Count the number of children. Typically these are bullets.
+
+
+
+<a name="Sprite:clear"></a><div class=fnFinal> Sprite:clear()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+<div class=code>
+local s = getSprite( self );
+local tmp = copySprite ( s );
+...
+tmp:clear();
+</div>
+
+
+
+<a name="Sprite:copy"></a><div class=fnFinal> Sprite:copy()</div>
+  IN:  void
+
+  OUT: <span class="typeany">Sprite</span> 
+
+<div class=hdr3>description:</div>
+
+Create a copy of this sprite.
+
+
+
+<a name="Sprite:frameCount"></a><div class=fnUndef> Sprite:frameCount()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> 
+
+<div class=hdr3>description:</div>
+
+Returns the frame count for the Sprite's active frame set.
+
+
+
+<a name="Sprite:freeze"></a><div class=fnFinal> Sprite:freeze()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="Sprite:getExtra"></a><div class=fnFinal> Sprite:getExtra()</div>
+  IN:  void
+
+  OUT: <span class="typeany">Extra</span> 
+
+
+
+
+<a name="Sprite:getHP"></a><div class=fnUndef> Sprite:getHP()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> hp
+
+<div class=hdr3>description:</div>
+
+get the sprite hit points
+
+
+
+<a name="Sprite:getProto"></a><div class=fnFinal> Sprite:getProto()</div>
+  IN:  void
+
+  OUT: <span class="typeany">Proto</span> 
+
+
+
+
+<a name="Sprite:getString"></a><div class=fnUntested> Sprite:getString()</div>
+  IN:  void
+
+  OUT: <span class="typeany">string</span> 
+
+<div class=hdr3>description:</div>
+
+Get the hint/description associated with a given sprite
+
+
+
+<a name="Sprite:hasItem"></a><div class=fnUndef> Sprite:hasItem()</div>
+  IN:  <span class="typeany">int</span> protoID
+
+  OUT: void
+
+
+
+
+<a name="Sprite:height"></a><div class=fnUntested> Sprite:height()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> height
+
+<div class=hdr3>description:</div>
+
+Get sprite height (pixels).
+
+
+
+<a name="Sprite:hide"></a><div class=fnFinal> Sprite:hide()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Hide the sprite.
+<div class=code>
+local player = getPlayer();
+player:hide();
+if player:isHidden() then
+   Debug:printf("%s is hidden", player.name);
+end 
+</div>
+
+
+
+<a name="Sprite:hitTest"></a><div class=fnUntested> Sprite:hitTest()</div>
+  IN:  <span class="typeany">int</span> aim
+
+  OUT: <span class="typeany">HitTest</span> 
+
+<div class=hdr3>description:</div>
+
+returns a hit test object.
+
+
+
+<a name="Sprite:isActive"></a><div class=fnUntested> Sprite:isActive()</div>
+  IN:  void
+
+  OUT: <span class="typeany">bool</span> active
+
+<div class=hdr3>description:</div>
+
+Get the sprite active state. This is set through the activation policy.
+
+
+
+<a name="Sprite:isDead"></a><div class=fnFinal> Sprite:isDead()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+returns true if the sprite is dead !
+
+<div class=code>
+local player = getPlayer();
+killPlayer();
+if player:isDead() then
+   Debug:printf("player is dead");
+end
+</div>
+
+
+
+<a name="Sprite:isFrozen()"></a><div class=fnUndef> Sprite:isFrozen()()</div>
+  IN:  void
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+returns true if the sprite is frozen
+
+
+
+<a name="Sprite:isGoal"></a><div class=fnUndef> Sprite:isGoal()</div>
+  IN:  void
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+returns true is the sprite is marked as a goal.
+
+
+
+<a name="Sprite:isHidden"></a><div class=fnFinal> Sprite:isHidden()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+returns true if the sprite is hidden.
+
+<div class=code>
+local player = getPlayer();
+Debug:printf("player id= %d; name: %s", player.id, player.name);
+player:hide();
+if player:isHidden() then
+   Debug:printf("%s is hidden", player.name);
+end 
+</div>
+
+
+
+<a name="Sprite:isMonster"></a><div class=fnUntested> Sprite:isMonster()</div>
+  IN:  void
+
+  OUT: <span class="typeany">bool</span> 
+
+
+
+
+<a name="Sprite:IsPlayer"></a><div class=fnUntested> Sprite:IsPlayer()</div>
+  IN:  void
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+Tests if this sprite is a player object.
+
+
+
+<a name="Sprite:isPlayerThere"></a><div class=fnFinal> Sprite:isPlayerThere()</div>
+  IN:  <span class="typeany">int</span> aim
+
+  OUT: <span class="typeany">bool</span> 
+
+
+
+
+<a name="Sprite:isVisible"></a><div class=fnFinal> Sprite:isVisible()</div>
+  IN:  void
+
+  OUT: <span class="typeany">bool</span> 
+
+
+
+
+<a name="Sprite:kill"></a><div class=fnFinal> Sprite:kill()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Kills the sprite. Don't try this inside the sprite's own event handler!!!
+
+<div class=code>
+local player = getPlayer();
+player:kill();
+if player:isDead() then
+   Debug:printf("`%s` is dead", player.name);
+end 
+</div>
+
+
+
+<a name="Sprite:land"></a><div class=fnUndef> Sprite:land()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Calls the default "landing" code for this sprite. This is typically used when an 
+sprite has stopped from a free fall. land() checks if the sprite's maxFall 
+property is exceeded and kills the sprite as appropriate.
+
+
+
+<a name="Sprite:map"></a><div class=fnFinal> Sprite:map()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="Sprite:markAsGoal"></a><div class=fnUndef> Sprite:markAsGoal()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="Sprite:move"></a><div class=fnFinal> Sprite:move()</div>
+  IN:  <span class="typeany">int</span> aim
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Move the sprite in a given direction; UP, DOWN, LEFT or RIGHT
+
+
+
+<a name="Sprite:moveBy"></a><div class=fnFinal> Sprite:moveBy()</div>
+  IN:  <span class="typeany">int</span> tx
+       <span class="typeany">int</span> ty
+
+  OUT: void
+
+
+
+
+<a name="Sprite:moveTo"></a><div class=fnFinal> Sprite:moveTo()</div>
+  IN:  <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+
+  OUT: void
+
+
+
+
+<a name="Sprite:objClass"></a><div class=fnFinal> Sprite:objClass()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> classId
+
+
+
+
+<a name="Sprite:objName"></a><div class=fnFinal> Sprite:objName()</div>
+  IN:  void
+
+  OUT: <span class="typeany">string</span> name of the object
+
+
+
+
+<a name="Sprite:objType"></a><div class=fnFinal> Sprite:objType()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> TypeId
+
+
+
+
+<a name="Sprite:proto"></a><div class=fnFinal> Sprite:proto()</div>
+  IN:  void
+
+  OUT: <span class="typeany">Proto</span> 
+
+<div class=hdr3>description:</div>
+
+same as getProto()
+
+
+
+<a name="Sprite:removeItem"></a><div class=fnUndef> Sprite:removeItem()</div>
+  IN:  <span class="typeany">int</span> protoID
+
+  OUT: void
+
+
+
+
+<a name="Sprite:resetInventory"></a><div class=fnUndef> Sprite:resetInventory()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="Sprite:setAim"></a><div class=fnFinal> Sprite:setAim()</div>
+  IN:  <span class="typeany">int</span> aim
+
+  OUT: void
+
+
+<div class=hdr3>paramIns:</div>
+
+   aim             UP, DOWN, LEFT, RIGHT
+
+
+
+
+
+<a name="Sprite:setAsGoal"></a><div class=fnUntested> Sprite:setAsGoal()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="Sprite:setHP"></a><div class=fnUntested> Sprite:setHP()</div>
+  IN:  <span class="typeany">int</span> hp
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+set the sprite hit points
+
+
+
+<a name="Sprite:setImage"></a><div class=fnFinal> Sprite:setImage()</div>
+  IN:  <span class="typeany">int</span> imageSet*
+       <span class="typeany">int</span> imageNo
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Change the image of the given sprite. 
+
+<div class=code>
+local sprite = getSprite(self);
+sprite:setImage(sprite.imageSet, XOR(sprite.imageNo,1));
+</div>
+
+
+
+<a name="Sprite:setOwner"></a><div class=fnUndef> Sprite:setOwner()</div>
+  IN:  void
+
+  OUT: <span class="typeany">Sprite</span> owner
+
+<div class=hdr3>description:</div>
+
+Set the owner of this sprite
+
+
+
+<a name="Sprite:setState"></a><div class=fnFinal> Sprite:setState()</div>
+  IN:  <span class="typeany">int</span> stateFlag
+       <span class="typeany">bool</span> flip*
+
+  OUT: <span class="typeany">int</span> stateFlag
+
+<div class=hdr3>description:</div>
+
+Change the state flags for this sprite.
+
+if flip is true the bits are set on otherwise they are cleared. Flip is optional 
+and assumed to be true.
+
+State flag is a combination of the following:
+
+<div class=code>
+    STATE_FALL		
+    STATE_DEAD	
+    STATE_HIT		    
+    STATE_JUMP	
+    STATE_BEGINNING    
+    STATE_FIRING       
+    STATE_LOOKUP       
+</div>
+
+Example usage:
+
+<div class=code>
+local player = getPlayer();
+player:setState(STATE_DEAD);
+</div>
+
+returns the newly modified state flag.
+
+
+
+<a name="Sprite:setTriggerKey"></a><div class=fnFinal> Sprite:setTriggerKey()</div>
+  IN:  <span class="typeany">int</span> key
+
+  OUT: void
+
+
+
+
+<a name="Sprite:show"></a><div class=fnFinal> Sprite:show()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Show this sprite. This reverses the effect of Sprite:hide().
+
+<div class=code>
+local player = getPlayer();
+if player:isHidden() then
+   Debug:printf("%s is hidden", player.name);
+end 
+player:show();
+</div>
+
+
+
+<a name="Sprite:spawn"></a><div class=fnUndef> Sprite:spawn()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="Sprite:stopAnimation"></a><div class=fnFinal> Sprite:stopAnimation()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Stop the sprite's animation sequence. see stopAnimation() for details.
+
+<div class=code>
+local sprite = getSprite( self );
+sprite:stopAnimation();
+</div>
+
+
+
+<a name="Sprite:testFlags"></a><div class=fnFinal> Sprite:testFlags()</div>
+  IN:  <span class="typeany">int</span> mask
+
+  OUT: <span class="typeany">bool</span> result
+
+
+
+
+<a name="Sprite:togglePathPlayback"></a><div class=fnUndef> Sprite:togglePathPlayback()</div>
+  IN:  <span class="typeany">bool enable</span> 
+
+  OUT: void
+
+
+
+
+<a name="Sprite:triggerHitState"></a><div class=fnFinal> Sprite:triggerHitState()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Trigger the hit state for this sprite. See triggerHitState() for details.
+
+<div class=code>
+local player = getPlayer();
+player:triggerHitState();
+</div>
+
+
+
+<a name="Sprite:tryAnimation"></a><div class=fnFinal> Sprite:tryAnimation()</div>
+  IN:  <span class="typeany">int</span> animSeq
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+see tryAnimation() for details
+
+
+
+<a name="Sprite:tryPath"></a><div class=fnFinal> Sprite:tryPath()</div>
+  IN:  <span class="typeany">int</span> path
+       <span class="typeany">int</span> aim*
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+Apply a defined path to a sprite. Path can be any PS_XXXX constants. See tryPath(
+) for details.
+
+<div class=code>
+local player = getPlayer();
+player:tryPath(PS_JUMP_LEFT);
+</div>
+
+
+
+<a name="Sprite:unFreeze"></a><div class=fnUndef> Sprite:unFreeze()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="Sprite:unMap"></a><div class=fnFinal> Sprite:unMap()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="Sprite:unmarkAsGoal"></a><div class=fnUndef> Sprite:unmarkAsGoal()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="Sprite:unsetAsGoal"></a><div class=fnUndef> Sprite:unsetAsGoal()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="Sprite:width"></a><div class=fnUntested> Sprite:width()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> width
+
+<div class=hdr3>description:</div>
+
+Get sprite width in pixels.
+
+
+
+<div class=hdr0>functions</div>
+
+<a name="addDisplay"></a><div class=fnFinal> addDisplay()</div>
+  IN:  <span class="typeany">string</span> name
+       <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+       <span class="typeany">int</span> type
+
+  OUT: <span class="typeany">Display</span> 
+
+<div class=hdr3>description:</div>
+
+similar to addDisplayC excepts that it returns a Display obj
+
+after adding a new Display object also remember to set it visible using the 
+Display:setVisible method.
+
+<div class=code>
+    DISPLAY_TIME_LEFT   
+    displays the timeLeft counter
+    
+    DISPLAY_MESSAGE
+    displays a text message
+     
+    DISPLAY_SCORE       
+    displays the user score
+
+    DISPLAY_LIVES      
+    display available lives
+    
+    DISPLAY_HP         
+    display the hp counter 
+
+    DISPLAY_DEBUG	
+    displays the debug console
+</div>
+
+when a game is run there are already several displays defined. you may modify 
+these displays using getDisplay() with the appropriate name string.
+
+example
+
+<div class=code>
+local displayId;
+
+displayId = findDisplay("timeLeft");
+debug("timeLeft id: " .. displayId);
+
+displayId = findDisplay("score");
+debug("score id: " .. displayId);
+
+local timeLeft = getDisplayByName("timeLeft");
+timeLeft:setColor(0xff, 0xff, 0, 0x80);
+timeLeft:move(SCREENLEN - 100, 0);
+timeLeft:setFontSize(50);
+
+local score = getDisplayByName("score");
+score:setColor(0xff, 0xff, 0xff, 0x80);
+score:setFontSize(24);
+
+local t = addDisplay("test", 64, 64, DISPLAY_MESSAGE);
+t:setText("this is a test\nSonia and the Pumpkins");
+t:show();
+</div>
+
+
+
+<a name="addLayer"></a><div class=fnUntested> addLayer()</div>
+  IN:  <span class="typeany">string</span> name
+       <span class="typeany">int</span> type
+       <span class="typeany">int</span> hSpeed*
+       <span class="typeany">int</span> vSpeed*
+
+  OUT: <span class="typeany">Layer</span> 
+
+<div class=hdr3>description:</div>
+
+see addLayerC
+
+
+
+<a name="addSprite"></a><div class=fnFinal> addSprite()</div>
+  IN:  <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+       <span class="typeany">int</span> imageSet
+       <span class="typeany">int</span> imageNo
+       <span class="typeany">int</span> aim
+       <span class="typeany">int</span> objectType
+       <span class="typeany">int</span> imageSet*
+       <span class="typeany">int</span> imageNo*
+
+  OUT: <span class="typeany">Sprite</span> 
+
+
+<div class=hdr3>paramIns:</div>
+
+   x               
+   y               
+   imageSet        
+   imageNo         
+   aim             either UP, DOWN, LEFT, RIGHT
+   objectType      
+   imageSet        
+   imageNo         
+
+
+<div class=hdr3>description:</div>
+
+note:  modifying variables inside of sprite doesn't change the object on screen 
+only your own local copy. to alter the sprite, use the build-in methods. see 
+getSprite for more details
+
+
+
+<a name="addToHP"></a><div class=fnFinal> addToHP()</div>
+  IN:  <span class="typeany">int</span> hitPoints
+
+  OUT: <span class="typeany">int</span> 
+
+
+<div class=hdr3>paramOuts:</div>
+
+   int             the player's new hp count
+
+
+<div class=hdr3>description:</div>
+
+negative values will be substracted. if the modication causes the player to fall 
+under 0 hp. the player dies. therefor onDeath will also be called
+
+addToHP will check for over bound value. if the player goes over maxHP, the 
+value will be adjusted automatically
+
+this function will also update the hp counter on screen
+
+
+
+<a name="addToInventory"></a><div class=fnFinal> addToInventory()</div>
+  IN:  <span class="typeany">int</span> objectType
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Add an object to the inventory of the player.
+
+
+
+<a name="addToScore"></a><div class=fnFinal> addToScore()</div>
+  IN:  <span class="typeany">int</span> points
+
+  OUT: <span class="typeany">int</span> current score
+
+<div class=hdr3>description:</div>
+
+add points to the player's score. this the function to use if you want to bypass 
+the autogenerated point that fly to the top of the screen.
+
+also note that if the value is negative, it will get deducted from the total no 
+test is performed to check for negative scores or overflow
+
+
+
+<a name="alert"></a><div class=fnFinal> alert()</div>
+  IN:  <span class="typeany">string</span> text
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Create a standard message box with an okay button to display the text. Works 
+just like the alert() function in javascript.
+
+<div class=code>
+alert("welcome home");
+</div>
+
+
+
+<a name="AND"></a><div class=fnFinal> AND()</div>
+  IN:  <span class="typeany">int</span> a
+       <span class="typeany">int</span> b
+
+  OUT: <span class="typeany">int</span> 
+
+
+<div class=hdr3>paramOuts:</div>
+
+   int             binary AND (a , b)
+
+
+
+
+
+<a name="callGameEvent"></a><div class=fnUndef> callGameEvent()</div>
+  IN:  <span class="typeany">int</span> eventId
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+<div class=code>
+    EG_INIT_GAME        = 0;
+    EG_PREPARE_LEVEL    = 1;
+    EG_COMPLETE_LEVEL   = 2;
+    EG_DEATH            = 3;
+    EG_GOAL_COLLECTED   = 4;
+    EG_GOAL_KILLED      = 5;
+</div>
+
+
+
+<a name="callLvEvent"></a><div class=fnFinal> callLvEvent()</div>
+  IN:  <span class="typeany">int</span> event
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Call a level event. Valid values are the following.
+
+<div class=code>
+    EL_CREATE
+    EL_DRAW 
+    EL_RESTART
+    EL_GOAL_COLLECTED
+    EL_LEVEL_COMPLETED
+    EL_TIMEOUT 		
+    EL_KEY_PRESSED
+    EL_KEY_UP 	
+    EL_GOAL_KILLED   
+    EL_HANDLER   
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;callLevelEvent<br>
+
+<a name="callTrigger"></a><div class=fnFinal> callTrigger()</div>
+  IN:  <span class="typeany">int</span> key
+
+  OUT: void
+
+
+<div class=hdr3>paramIns:</div>
+
+   key             number of this trigger (1-31)
+
+
+
+
+
+<a name="clearDisplay"></a><div class=fnFinal> clearDisplay()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Remove all the visual displays on screen. This includes the score, timeLeft, 
+health and debug, etc.
+
+<div class=code>
+clearDisplay();
+</div>
+
+
+
+<a name="clearKeys"></a><div class=fnUntested> clearKeys()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Clear the states for all the keys.
+
+
+
+<a name="copySprite"></a><div class=fnFinal> copySprite()</div>
+  IN:  <span class="typeany">Sprite</span> src
+
+  OUT: <span class="typeany">Sprite</span> newSprite
+
+<div class=hdr3>description:</div>
+
+Take the source sprite and create a new copy. Return an instance of the Sprite 
+wrapper object.
+
+CAUTION: using this function inside an handler such as OnSpawn can cause an 
+infinite loop which will crash the engine.
+
+
+
+<a name="counter_add"></a><div class=fnUndef> counter_add()</div>
+  IN:  <span class="typeany">string</span> name
+       <span class="typeany">int</span> variance
+
+  OUT: <span class="typeany">int</span> new_value
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;counters_add<br>
+
+<a name="counter_dec"></a><div class=fnUndef> counter_dec()</div>
+  IN:  <span class="typeany">string</span> name
+
+  OUT: <span class="typeany">int</span> new_counter_value
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;counters_dec<br>
+
+<a name="counter_get"></a><div class=fnFinal> counter_get()</div>
+  IN:  <span class="typeany">string name</span> 
+
+  OUT: <span class="typeany">int</span> 
+
+<div class=hdr3>description:</div>
+
+Return the value of a counter.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;counters_get<br>
+
+<a name="counter_inc"></a><div class=fnUndef> counter_inc()</div>
+  IN:  <span class="typeany">string</span> name
+
+  OUT: <span class="typeany">int</span> new_counter_value
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;counters_inc<br>
+
+<a name="counter_set"></a><div class=fnFinal> counter_set()</div>
+  IN:  <span class="typeany">string</span> name
+       <span class="typeany">int</span> value
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Set the value of a counter
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;counters_set<br>
+
+<a name="countGoals"></a><div class=fnFinal> countGoals()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> 
+
+
+<div class=hdr3>paramOuts:</div>
+
+   int             number of object marked as goals. This is the same code as 
+the one called by       engine's own isLevelCompleted().
+
+
+<div class=hdr3>description:</div>
+
+<div class=code>
+debug("++goals: " .. countGoals());
+</div>
+
+
+
+<a name="debug"></a><div class=fnFinal> debug()</div>
+  IN:  <span class="typeany">string</span> 
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+send a text string to the debug console.
+
+
+
+<a name="debugClear"></a><div class=fnFinal> debugClear()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+clear the debug log
+
+
+
+<a name="decTimeLeft"></a><div class=fnUndef> decTimeLeft()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="display_enableShadows"></a><div class=fnFinal> display_enableShadows()</div>
+  IN:  <span class="typeany">int</span> displayId
+       <span class="typeany">bool</span> shadow
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+enable shadows under a display. work with text-only displays.
+
+example
+
+<div class=code>
+local id = addDisplayC("goalCount", 258, 0, DISPLAY_MESSAGE);
+displaySetText(id, "XX");
+displaySetVisible ( id, true );
+displayEnableShadows( id, true );
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;displayEnableShadows<br>
+
+<a name="display_move"></a><div class=fnFinal> display_move()</div>
+  IN:  <span class="typeany">int</span> displayId
+       <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+change the position of a given display. x and y are absolute position given in 
+pixels.
+
+example
+
+<div class=code>
+local id = addDisplayC( "playerIcon", 60, 60, DISPLAY_IMAGE);
+displaySetXY(id, 0, 128);
+displaySetImage ( id, OBJECT_PLAYERS   ,  4 );
+displaySetVisible ( id, true );
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;displaySetXY<br>
+
+<a name="display_new"></a><div class=fnFinal> display_new()</div>
+  IN:  <span class="typeany">string</span> name
+       <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+       <span class="typeany">int</span> type
+
+  OUT: <span class="typeany">int</span> 
+
+
+<div class=hdr3>paramOuts:</div>
+
+   int             display uid or -1 if the function failed
+
+
+<div class=hdr3>description:</div>
+
+create a new display elements using ``name``, x, y, and type. 
+
+you can use any of the DISPLAY_XXXX constants for ``type``.
+
+<div class=code>
+  DISPLAY_TIME_LEFT 
+  DISPLAY_MESSAGE   
+  DISPLAY_SCORE     
+  DISPLAY_LIVES     
+  DISPLAY_HP        
+</div>
+
+after adding a new display also remember to set it visible
+using the displaySetVisible function.
+
+
+<div class=code>
+-- create a display of an image 
+-- using the frame set 'ANNIE.OBL'
+-- 0 is first image
+
+local id = addDisplayC( "petImage", 60, 60, DISPLAY_IMAGE);
+displaySetImage ( id, IMAGES_ANNIE_OBL  , 0 );
+displaySetVisible ( id, true );
+</div>
+
+see addDisplay for more sample usages.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;addDisplayC<br>
+
+<a name="display_remove"></a><div class=fnUntested> display_remove()</div>
+  IN:  <span class="typeany">int</span> displayId
+
+  OUT: void
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;removeDisplayById<br>
+
+<a name="display_setAlpha"></a><div class=fnFinal> display_setAlpha()</div>
+  IN:  <span class="typeany">int</span> displayId
+       <span class="typeany">int</span> alpha
+
+  OUT: void
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;displaySetAlpha<br>
+
+<a name="display_setColor"></a><div class=fnFinal> display_setColor()</div>
+  IN:  <span class="typeany">int</span> displayId
+       <span class="typeany">int</span> red
+       <span class="typeany">int</span> green
+       <span class="typeany">int</span> blue
+       <span class="typeany">int</span> alpha
+
+  OUT: void
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;displaySetColor<br>
+
+<a name="display_setExpireTime"></a><div class=fnTba> display_setExpireTime()</div>
+  IN:  <span class="typeany">int</span> displayId
+       <span class="typeany">int</span> time
+
+  OUT: void
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;displaySetExpireTime<br>
+
+<a name="display_setFontSize"></a><div class=fnFinal> display_setFontSize()</div>
+  IN:  <span class="typeany">int</span> displayId
+       <span class="typeany">int</span> pxSize
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Change the pixel size of the text inside a display. This applies to text display 
+only. See example below.
+
+<div class=code>
+local id = addDisplayC("goalCount", 258, 0, DISPLAY_MESSAGE);
+displaySetText(id, "XX");
+displaySetVisible ( id, true );
+displayEnableShadows( id, true );
+displaySetShadowOffset(id, 2, 2);
+displaySetFontSize(id, 14);
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;displaySetFontSize<br>
+
+<a name="display_setImage"></a><div class=fnFinal> display_setImage()</div>
+  IN:  <span class="typeany">int</span> displayId
+       <span class="typeany">int</span> imageSet
+       <span class="typeany">int</span> imageNo
+
+  OUT: <span class="typeany">void</span> 
+
+<div class=hdr3>description:</div>
+
+Assign an image to a display designated by displayId.
+
+imageSet is set from the gameDB. Use the IMAGES_XXXX constants.
+imageNo are zero based index (from the first image, #0). 
+
+Note that each display can only accomodate one thing. If you assign an image to 
+display that originally contained text. That text will be gone.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;displaySetImage<br>
+
+<a name="display_setShadowColor"></a><div class=fnFinal> display_setShadowColor()</div>
+  IN:  <span class="typeany">int</span> displayId
+       <span class="typeany">int</span> red
+       <span class="typeany">int</span> green
+       <span class="typeany">int</span> blue
+       <span class="typeany">int</span> alpha
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+changes the color of the shadow cast by a display. works only with text displays 
+where the shadow is enabled.
+
+<div class=code>
+local id = addDisplayC("lives", 188, 0, DISPLAY_LIVES);
+displaySetVisible ( id, true );
+displayEnableShadows( id, true );
+displaySetShadowOffset(id, 2,2);
+displaySetShadowColor(id, 200, 200, 240, 128);
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;displaySetShadowColor<br>
+
+<a name="display_setShadowOffset"></a><div class=fnFinal> display_setShadowOffset()</div>
+  IN:  <span class="typeany">int</span> displayId
+       <span class="typeany">int</span> tx
+       <span class="typeany">int</span> ty
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+change the offset of the shadow from the text. this works soley for text-only 
+displays.
+
+<div class=code>
+local id = addDisplayC("lives", 188, 0, DISPLAY_LIVES);
+displaySetVisible ( id, true );
+displayEnableShadows( id, true );
+displaySetShadowOffset(id, 2,2);
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;displaySetShadowOffset<br>
+
+<a name="display_setText"></a><div class=fnFinal> display_setText()</div>
+  IN:  <span class="typeany">int</span> displayId
+       <span class="typeany">string</span> text
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+change the text displayed inside a text display.
+
+example
+<div class=code>
+local id = findDisplay("goalCount");
+-- local goals = sprintf( "%.2d", countGoals() );
+local goals = sprintf("%.2d", getGoalLeft());
+displaySetText( id, goals ) ;
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;displaySetText<br>
+
+<a name="display_setType"></a><div class=fnUntested> display_setType()</div>
+  IN:  <span class="typeany">int</span> displayId
+       <span class="typeany">int</span> type
+
+  OUT: void
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;displaySetType<br>
+
+<a name="display_setVisible"></a><div class=fnFinal> display_setVisible()</div>
+  IN:  <span class="typeany">int</span> displayId
+       <span class="typeany">bool</span> visible
+
+  OUT: void
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;displaySetVisible<br>
+
+<a name="display_sizeText"></a><div class=fnFinal> display_sizeText()</div>
+  IN:  <span class="typeany">int</span> displayId
+       <span class="typeany">string</span> text*
+
+  OUT: <span class="typeany">int</span> size
+
+<div class=hdr3>description:</div>
+
+Returns the size of the string if not empty otherwise return the size of the 
+text contained in the display.
+
+
+
+<a name="element_move"></a><div class=fnUntested> element_move()</div>
+  IN:  <span class="typeany">int</span> layerId
+       <span class="typeany">int</span> elementId
+       <span class="typeany">int</span> aim
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+This function moves this element to a given aim. Valid values for aim are the 
+following
+
+<div class=code>
+UP
+DOWN
+LEFT
+RIGHT
+</div>
+
+return true if succesful
+
+
+
+<a name="element_moveBy"></a><div class=fnFinal> element_moveBy()</div>
+  IN:  <span class="typeany">int</span> layerId
+       <span class="typeany">int</span> elementId
+       <span class="typeany">int</span> tx
+       <span class="typeany">int</span> ty
+
+  OUT: <span class="typeany">bool</span> 
+
+
+
+
+<a name="element_moveTo"></a><div class=fnFinal> element_moveTo()</div>
+  IN:  <span class="typeany">int</span> layerId
+       <span class="typeany">int</span> elementId
+       <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+
+  OUT: <span class="typeany">bool</span> 
+
+
+
+
+<a name="element_new"></a><div class=fnFinal> element_new()</div>
+  IN:  <span class="typeany">int</span> layerId
+       <span class="typeany">int</span> imageSet
+       <span class="typeany">int</span> imageNo
+       <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+       <span class="typeany">bool</span> show*
+
+  OUT: <span class="typeany">int</span> elementId
+
+<div class=hdr3>description:</div>
+
+This function is used to add an element to a background or foreground layer. If 
+you want to add a sprite to the main the layer use the appropriate sprite 
+function.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;addElement<br>
+
+<a name="element_setImage"></a><div class=fnUntested> element_setImage()</div>
+  IN:  <span class="typeany">int</span> layerId
+       <span class="typeany">int</span> elementId
+       <span class="typeany">int</span> imageSet
+       <span class="typeany">int</span> imageNo
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+Change the image associated with a layer element.
+
+
+
+<a name="element_setVisible"></a><div class=fnUntested> element_setVisible()</div>
+  IN:  <span class="typeany">int</span> layerId
+       <span class="typeany">int</span> elementId
+       <span class="typeany">bool</span> show
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Set a given element to hidden or shown. If show is true the object is set to 
+visible otherwise, it is hidden.
+
+
+
+<a name="findDisplay"></a><div class=fnFinal> findDisplay()</div>
+  IN:  <span class="typeany">string</span> name
+
+  OUT: <span class="typeany">int</span> displayId
+
+
+<div class=hdr3>paramOuts:</div>
+
+   int             displayId or -1 if it doesn't exists
+
+
+<div class=hdr3>description:</div>
+
+findDisplay returns a displayId for an existing display.
+
+These can be system display or an a user defined one. (see example)
+
+example:
+
+<div class=code>
+-- find a previously created display
+-- and update it
+
+local id = findDisplay("goalCount");
+local goals = sprintf( "%.2d", countGoals() );
+displaySetText( id, goals ) ;
+</div>
+
+
+
+<a name="findLayer"></a><div class=fnFinal> findLayer()</div>
+  IN:  <span class="typeany">String</span> name
+
+  OUT: <span class="typeany">int</span> layerId
+
+<div class=hdr3>description:</div>
+
+return the layerId matching name or -1 if not found.
+
+<div class=code>
+Debug:printf("layer fw is :%d", getLayerC ( "fw"));
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;getLayerC<br>
+
+<a name="findSprite"></a><div class=fnFinal> findSprite()</div>
+  IN:  <span class="typeany">int</span> class
+       <span class="typeany">int</span> origin*
+
+  OUT: <span class="typeany">int</span> objId
+
+<div class=hdr3>description:</div>
+
+Find the first sprite from origin which match the given class. Origin can be 
+omitted, in which, it is assumed to be index 0.
+
+Returns the objId if a match is found or otherwise -1.
+
+<div class=code>
+local id = findSprte( CLASS_PLAYER_OBJECT );
+</div>
+
+
+
+<a name="frameSet_getSize"></a><div class=fnUndef> frameSet_getSize()</div>
+  IN:  <span class="typeany">int</span> frameSet
+
+  OUT: <span class="typeany">int</span> size
+
+<div class=hdr3>description:</div>
+
+Get the number of images inside a frameset.
+
+
+
+<a name="getBkColor"></a><div class=fnFinal> getBkColor()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> red
+       <span class="typeany">int</span> green
+       <span class="typeany">int</span> blue
+
+<div class=hdr3>description:</div>
+
+returns three integer values for each individual components such as red, green 
+and blue of the current level's background color. This is just an alias for 
+getBkColorC()
+
+<div class=code>
+local bkColor = getBkColor();
+Debug:printf("red: %u; green: %u; blue: %u", bkColor.red, bkColor.green, bkColor.
+blue);
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#getBkColorC">getBkColorC</a><br>
+
+<a name="getBkColorC"></a><div class=fnFinal> getBkColorC()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> red
+       <span class="typeany">int</span> green
+       <span class="typeany">int</span> blue
+
+<div class=hdr3>description:</div>
+
+Get the background color for the current level. Return the color as individual 
+components as shown in the out list.
+
+<div class=code>
+local red;
+local green;
+local blue;
+red, green, blue = getBkColorC();
+
+Debug:printf("red: %u; green: %u; blue: %u", red, green, blue);
+</div>
+
+
+
+<a name="getClosureEvent"></a><div class=fnUndef> getClosureEvent()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> 
+
+
+
+
+<a name="getClosureTime"></a><div class=fnUndef> getClosureTime()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> 
+
+
+
+
+<a name="getDisplayById"></a><div class=fnFinal> getDisplayById()</div>
+  IN:  <span class="typeany">int</span> displayId
+
+  OUT: <span class="typeany">Display</span> 
+
+
+
+
+<a name="getDisplayByName"></a><div class=fnFinal> getDisplayByName()</div>
+  IN:  <span class="typeany">string</span> displayName
+
+  OUT: <span class="typeany">Display</span> 
+
+<div class=hdr3>description:</div>
+
+Create a lua Display object matching the engine display of the provided name.
+
+
+
+<a name="getExtra"></a><div class=fnFinal> getExtra()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">Extra</span> 
+
+<div class=hdr3>description:</div>
+
+see getExtraC()
+
+
+
+<a name="getGoalLeft"></a><div class=fnFinal> getGoalLeft()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> goalLeft
+
+<div class=hdr3>description:</div>
+
+Return the number of items marked as a goals on the left. This uses a 
+precompiled value. In contrast, countGoals() will do make a new count.
+
+example:
+
+<div class=code>
+local id = findDisplay("goalCount");
+-- countGoals requires more computation
+-- local goals = sprintf( "%.2d", countGoals() );
+local goals = sprintf("%.2d", getGoalLeft());
+displaySetText( id, goals ) ;
+</div>
+
+
+
+<a name="getHitTest"></a><div class=fnFinal> getHitTest()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> aim
+
+  OUT: <span class="typeany">HitTest</span> 
+
+<div class=hdr3>description:</div>
+
+Takes an objId and returns a HitTest object.
+
+see getHitTestC() for detais and HitTest class for details.
+
+
+
+<a name="getHP"></a><div class=fnFinal> getHP()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> player hp
+
+
+<div class=hdr3>paramOuts:</div>
+
+   int             player hit's points count
+
+
+<div class=hdr3>description:</div>
+
+Get the player's Hit Point count.
+
+example:
+
+<div class=code>
+setHP(500);
+Debug:printf("hp:  %d", getHP());
+</div>
+
+
+
+<a name="getImage"></a><div class=fnFinal> getImage()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">int</span> imageSet
+       <span class="typeany">int</span> ImageNo
+
+<div class=hdr3>description:</div>
+
+Return the imageSet and imageNo for a given sprite
+
+<div class=code>
+local imageSet;
+local imageNo;
+imageSet, imageNo = getImage(selt);
+</div>
+
+
+
+<a name="getImageSize"></a><div class=fnFinal> getImageSize()</div>
+  IN:  <span class="typeany">int</span> imageSet
+       <span class="typeany">int</span> imageNo
+
+  OUT: <span class="typeany">int</span> length
+       <span class="typeany">int</span> height
+
+<div class=hdr3>description:</div>
+
+Returns the image length and height in pixels for an image designated by the 
+imageSet  / imageNo pair.
+
+<div class=code>
+local s = getSprite(self);
+local sx, sy = getImageSize(s.imageSet, s.imageNo);
+if s.y + sy >= BUFFERHEI then
+  s:setState(STATE_DEAD);
+  s:hide();
+end
+</div>
+
+
+
+<a name="getLastKey"></a><div class=fnFinal> getLastKey()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> keyCode
+
+<div class=hdr3>description:</div>
+
+Get the last key pressed. Use this in keyUP and keyPressed events to know which 
+key was pressed.
+
+<div class=code>
+
+-- this would be called inside the keyPressed 
+-- or keyUp handler
+
+local keyCode = getLastKey();
+if keyCode == KEY_SPACE then
+   setBkColor(rand(), rand(), rand());
+else
+   Debug:printf("last key: %d", keyCode);
+end
+</div>
+
+
+
+<a name="getLayer"></a><div class=fnFinal> getLayer()</div>
+  IN:  <span class="typeany">string</span> name
+
+  OUT: <span class="typeany">Layer</span> 
+
+<div class=hdr3>description:</div>
+
+Returns the layer object matching the name provided. Use this function for 
+background or foreground layer. This will not work with the main layer.
+
+<div class=code>
+local layer = getLayer( "fw");
+local element = layer:addElement(IMAGES_WHITEBALL_PNG, 0, 100, 100, true);
+</div>
+
+
+
+<a name="getLevelGoal"></a><div class=fnFinal> getLevelGoal()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> levelGoal
+
+<div class=hdr3>description:</div>
+
+The goal can be any of following values. (please note that they cannot be 
+combined)
+
+<div class=code>
+        GOAL_ONLY               
+        GOAL_UP                
+        GOAL_DOWN         
+        GOAL_LEFT            
+        GOAL_RIGHT         
+        GOAL_NO_COMPLETE        
+</div>
+
+GOAL_ONLY: when all goal marked objects are collected (removed)
+
+GOAL_UP: when all goal marked objects are collected and player reaches the top 
+of level (LODERUNNER)
+
+GOAL_DOWN: when all goal marked objects are collected and player reaches the 
+bottom of level.
+
+GOAL_LEFT: when all goal marked objects are collected and player reaches the 
+most left position.
+
+GOAL_DOWN: when all goal marked objects are collected and player reaches the 
+most right position .
+
+GOAL_NO_COMPLETE : this requires that the level be declared completed via 
+EndLevel function as to automatic completion is checked.
+
+<div class=code>
+Debug:printf("level goal: %d", getLevelGoal());
+</div>
+
+
+
+<a name="getLookUp"></a><div class=fnFinal> getLookUp()</div>
+  IN:  void
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+this function returns true if lookup is enabled. otherwise it returns false.
+
+
+
+<a name="getPlayer"></a><div class=fnFinal> getPlayer()</div>
+  IN:  void
+
+  OUT: <span class="typeany">Sprite</span> 
+
+<div class=hdr3>description:</div>
+
+Get a Sprite object that contains the information about the player. Returns a 
+wrapper with the desired data.
+
+<div class=code>
+local player = getPlayer();
+Debug:printf("player id= %d; name: %s", player.id, player.name);
+</div>
+
+
+
+<a name="getPlayerID"></a><div class=fnFinal> getPlayerID()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> objId
+
+<div class=hdr3>description:</div>
+
+returns the objId of the player. 
+
+<div class=code>
+local id = getPlayerC();
+Debug:printf("player_id: %x", id);
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;getPlayerC<br>
+
+<a name="getProto"></a><div class=fnFinal> getProto()</div>
+  IN:  <span class="typeany">int</span> objType
+
+  OUT: <span class="typeany">Proto</span> 
+
+<div class=hdr3>description:</div>
+
+Get the information about a given objType. Return a Proto object containing the 
+data requested.
+
+
+
+<a name="getScore"></a><div class=fnFinal> getScore()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> current score
+
+
+<div class=hdr3>paramOuts:</div>
+
+   int             the current score of the player
+
+
+<div class=hdr3>description:</div>
+
+Returns the player' score.
+
+<div class=code>
+debug( "score:" .. getScore());
+</div>
+
+
+
+<a name="getScreenSize"></a><div class=fnUndef> getScreenSize()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> len
+       <span class="typeany">int</span> hei
+
+<div class=hdr3>description:</div>
+
+Returns a tuple containing the screen size (opengl context).
+
+
+
+<a name="getSkill"></a><div class=fnFinal> getSkill()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> skill
+
+<div class=hdr3>description:</div>
+
+Get the skill level for the current game. 
+
+The value retuned is one of the following.
+
+<div class=code>
+SKILL_NORMAL	    
+SKILL_NIGHTMARE	    
+SKILL_HELL	
+SKILL_INSANE	    
+</div>
+
+example
+<div class=code>
+if getSkill() == SKILL_NORMAL then
+  debug("=>normal difficulty");
+  setTickScale(1000 / 80);
+  addToHP(50);
+end
+</div>
+
+
+
+<a name="getSprite"></a><div class=fnFinal> getSprite()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">Sprite</span> 
+
+<div class=hdr3>description:</div>
+
+similar to getSpriteVars except that it will return the data inside as an object 
+for easier management.
+
+one thing to remember though is that modify individual fields of ``sprite`` will 
+not alter the sprite. only your copy.
+
+to make changes, you must call base methods such as s:setAim(). see example
+
+<div class=code>
+  local s = getSprite(self);
+
+  debug("this is my detail:");
+  debug("x = " .. s.x);
+  debug("y = " .. s.y);
+
+  local aim = s.aim;
+
+  s:unMap();
+
+  if s:canFall () then
+    s:move( DOWN )  ;
+  else
+    if ticks % 5 == 0 then   
+
+      if s:isPlayerThere(aim) then
+	  s:attackPlayer();
+      end
+
+      if aim < LEFT or aim > RIGHT then
+	aim = LEFT
+      end
+
+      if s:canMove(aim) then
+	s:move(aim);
+	if s:canFall() then
+	  aim = XOR(aim, 1);
+	  s:move(aim);
+	end 
+      else
+	  aim = XOR( aim, 1);      
+      end
+
+      s:setAim ( aim );
+
+    end 
+  end
+
+  s:map();
+</div>
+
+
+
+<a name="getTicks"></a><div class=fnFinal> getTicks()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> ticks
+
+<div class=hdr3>description:</div>
+
+ticks are the internal unit for relative speed comparison within the engine.
+
+the number of ticks per seconds is directly related to the tick scale.
+
+the best way to deal with ticks is time splicing
+
+example
+
+<div class=code>
+local ticks = getTicks();
+if ticks % 5 == 0 then
+  -- this will be executed 20% of the time
+  -- or 1 in every 5 cycles
+end
+</div>
+
+
+
+<a name="getTickScale"></a><div class=fnFinal> getTickScale()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> tickScale
+
+<div class=hdr3>description:</div>
+
+The tickScale is the number of times per second that the engine main loop is 
+executed. see setTickScale for details
+
+
+
+<a name="getTime"></a><div class=fnFinal> getTime()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> time elapsed
+
+<div class=hdr3>description:</div>
+
+Returns the time elapsed in miliseconds since the engine was started. Depening 
+on the content this could be the level or the whole game.
+
+1000 = 1 second in real time
+
+<div class=code>
+Debug:printf("%d", getTime() );
+</div>
+
+
+
+<a name="getVersion"></a><div class=fnFinal> getVersion()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> lgck_version
+
+<div class=hdr3>description:</div>
+
+This function returns the version of lgck currently powering up the game engine.
+
+<div class=code>
+Debug:printf("version: %8.8x", getVersion());
+</div>
+
+
+
+<a name="getWrapFlag"></a><div class=fnFinal> getWrapFlag()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> wrapFlag
+
+<div class=hdr3>description:</div>
+
+Returns the wrap arround state for the current level.
+
+Valid values are a combination of the following.
+
+<div class=code>
+        WRAP_UP                 
+        WRAP_DOWN          
+        WRAP_LEFT             
+        WRAP_RIGHT          
+</div>
+
+<div class=code>
+local wrapFlag = getWrapFlag();
+Debug:printf("wrapFlag: %d", wrapFlag);
+</div>
+
+You can test for individual directions using the binary AND operator.
+
+<div class=code>
+AND (wrapFlag, WRAP_UP)
+</div>
+
+
+
+<a name="hasGravity"></a><div class=fnFinal> hasGravity()</div>
+  IN:  void
+
+  OUT: <span class="typeany">bool</span> gravity
+
+<div class=hdr3>description:</div>
+
+return true if gravity is enabled on this level.
+
+<div class=code>
+if (hasGravity()) then 
+   debug("this level has gravity");
+else
+   debug("this level doesn't have gravity"); 
+end
+</div>
+
+
+
+<a name="hasItem"></a><div class=fnUntested> hasItem()</div>
+  IN:  <span class="typeany">int</span> objType
+
+  OUT: <span class="typeany">bool</span> result
+
+<div class=hdr3>description:</div>
+
+Return true if the objType is part of the player's inventory.
+
+
+
+<a name="killPlayer"></a><div class=fnFinal> killPlayer()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="layer_clear"></a><div class=fnFinal> layer_clear()</div>
+  IN:  <span class="typeany">int</span> layerId
+
+  OUT: <span class="typeany">bool</span> result
+
+<div class=hdr3>description:</div>
+
+Clear the layer designed by layer id. This function will return true if 
+succesful.
+
+<div class=code>
+local id = getLayerC("fw");
+if layer_clear( id ) then
+  Debug:printf("layer was cleared");
+end
+</div>
+
+
+
+<a name="layer_getElement"></a><div class=fnFinal> layer_getElement()</div>
+  IN:  <span class="typeany">int</span> layerId
+       <span class="typeany">int</span> elementId
+
+  OUT: <span class="typeany">int</span> imageSet
+       <span class="typeany">int</span> ImageNo
+       <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+       <span class="typeany">bool</span> show
+
+
+
+
+<a name="layer_getSize"></a><div class=fnFinal> layer_getSize()</div>
+  IN:  <span class="typeany">int</span> layerId
+
+  OUT: <span class="typeany">int</span> size
+
+<div class=hdr3>description:</div>
+
+This function returns the object/sprite count on the layer identified by layerId.
+ You can get the layerId with getLayerC().
+
+<div class=code>
+local id = getLayerC ( "fw");
+Debug:printf("layer size: %d", layer_getSize( id ));
+</div>
+
+
+
+<a name="layer_new"></a><div class=fnUntested> layer_new()</div>
+  IN:  <span class="typeany">String</span> name
+       <span class="typeany">int</span> type
+       <span class="typeany">int</span> hSpeed*
+       <span class="typeany">int</span> vSpeed*
+
+  OUT: <span class="typeany">int</span> layerId
+
+<div class=hdr3>description:</div>
+
+valid types
+
+<div class=code>
+    LAYER_BK             
+    LAYER_FW            
+</div>
+
+valid speeds
+
+<div class=code>
+        SPEED_NOSCROLL,
+        SPEED_WHOLE,
+        SPEED_1_2,
+        SPEED_1_4,
+        SPEED_1_8,
+        SPEED_1_16,
+        SPEED_1_32
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;addLayerC<br>
+
+<a name="lioadGame"></a><div class=fnUntested> lioadGame()</div>
+  IN:  <span class="typeany">string</span> filename
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+EXPERIMENTAL. Load a save game. Don't call from a sprite handler since this will 
+lead to undefined behavior.
+
+
+
+<a name="MAX"></a><div class=fnUntested> MAX()</div>
+  IN:  <span class="typeany">int</span> value1
+       <span class="typeany">int</span> value2
+
+  OUT: <span class="typeany">int</span> 
+
+<div class=hdr3>description:</div>
+
+return the largest of the two integers being passed to it.
+
+
+
+<a name="MIN"></a><div class=fnUntested> MIN()</div>
+  IN:  <span class="typeany">int</span> value1
+       <span class="typeany">int</span> value2
+
+  OUT: <span class="typeany">int</span> 
+
+<div class=hdr3>description:</div>
+
+return the smallest  value of the two integers.
+
+
+
+<a name="nextTick"></a><div class=fnUndef> nextTick()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="openStream"></a><div class=fnUntested> openStream()</div>
+  IN:  <span class="typeany">string</span> soundFile
+
+  OUT: <span class="typeany">bool</span> 
+
+
+<div class=hdr3>paramIns:</div>
+
+   soundFile       This can ogg, wav or another file format supported by SFML.
+
+
+<div class=hdr3>description:</div>
+
+Open a sound file for streaming. If the soundFile was opened succesfully, this 
+function will return true. Your next step is to call playStream() to play the 
+file. 
+
+<div class=code>
+openStream("level01.ogg");
+</div>
+
+
+
+<a name="OR"></a><div class=fnFinal> OR()</div>
+  IN:  <span class="typeany">int</span> a
+       <span class="typeany">int</span> b
+
+  OUT: <span class="typeany">int</span> binary or (a , b)
+
+
+
+
+<a name="pause"></a><div class=fnFinal> pause()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+pause the game. equivalent to pressing F4
+
+
+
+<a name="playSound"></a><div class=fnFinal> playSound()</div>
+  IN:  <span class="typeany">string</span> sound
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Loads a sound resource from the current lgckdb database and plays it. The name 
+of the sound is case sensitive so please be sure to have exact same spelling.
+
+This function can accept multiple inputs. 
+
+<div class=code>
+  playSound("OUCH");
+  playSound("OUCH", "JUMP");
+</div>
+
+
+
+<a name="playStream"></a><div class=fnUntested> playStream()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Play an opened stream. You must first use openStream() to ready the stream to be 
+played.
+
+
+
+<a name="proto_get"></a><div class=fnFinal> proto_get()</div>
+  IN:  <span class="typeany">int</span> objType
+
+  OUT: <span class="typeany">array</span> proto
+
+<div class=hdr3>description:</div>
+
+Get the proto information for a given objType. Returns an array with the data 
+requested.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;getProtoC<br>
+
+<a name="rand"></a><div class=fnFinal> rand()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> 
+
+<div class=hdr3>description:</div>
+
+returns a random value.
+
+
+
+<a name="remap"></a><div class=fnUntested> remap()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Clear the collisionMap and recreate it from scatch. Very expensive in execution 
+cycles.
+
+
+
+<a name="removeDisplayByName"></a><div class=fnUntested> removeDisplayByName()</div>
+  IN:  <span class="typeany">string</span> name
+
+  OUT: void
+
+
+
+
+<a name="removeFromInventory"></a><div class=fnUntested> removeFromInventory()</div>
+  IN:  <span class="typeany">int</span> objType
+
+  OUT: void
+
+
+
+
+<a name="resetInventory"></a><div class=fnUntested> resetInventory()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="saveGame"></a><div class=fnUndef> saveGame()</div>
+  IN:  <span class="typeany">string</span> filename
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+EXPERIMENTAL. Create a save game. Don't call from a sprite handler since this 
+will lead to undefined behavior.
+
+
+
+<a name="scene_getSize"></a><div class=fnFinal> scene_getSize()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> spriteCount
+
+<div class=hdr3>description:</div>
+
+returns the number of sprites in the mainLayer.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;getSpriteCount<br>
+
+<a name="setBkColor"></a><div class=fnFinal> setBkColor()</div>
+  IN:  <span class="typeany">int</span> red
+       <span class="typeany">int</span> green
+       <span class="typeany">int</span> blue
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Set the background color for the current level from the red, green and blue 
+components of the provided as three integer values (max 255, 255, 255 is pure 
+white). This is just an alias for the now depreciated setBkColorC function.
+
+<div class=code>
+setBkColor(128, 40, 64);
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#setBkColorC">setBkColorC</a><br>
+
+<a name="setBkColorC"></a><div class=fnFinal> setBkColorC()</div>
+  IN:  <span class="typeany">int</span> red
+       <span class="typeany">int</span> green
+       <span class="typeany">int</span> blue
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Set the background color for a given level.
+
+<div class=code>
+-- set the background color at random
+setBkColorC(rand() % 256, rand() % 256, rand() % 256);
+</div>
+
+
+
+<a name="setBorderColor"></a><div class=fnFinal> setBorderColor()</div>
+  IN:  <span class="typeany">int</span> red
+       <span class="typeany">int</span> green
+       <span class="typeany">int</span> blue
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+set border color.
+
+<div class=code>
+setBorderColor(rand(),rand(),rand());
+</div>
+
+
+
+<a name="setEndLevel"></a><div class=fnFinal> setEndLevel()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="setHP"></a><div class=fnFinal> setHP()</div>
+  IN:  <span class="typeany">int</span> hitPoints
+
+  OUT: <span class="typeany">int</span> the player's new hp count
+
+<div class=hdr3>description:</div>
+
+Set the player's Hit Point count;
+
+example:
+
+<div class=code>
+setHP(500);
+Debug:printf("hp:  %d", getHP());
+</div>
+
+
+
+<a name="setKey"></a><div class=fnUntested> setKey()</div>
+  IN:  <span class="typeany">int</span> keyCode
+       <span class="typeany">bool</span> set
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+If set is true this key is considered pressed otherwise it is considered not 
+pressed.
+
+
+
+<a name="setLevelGoal"></a><div class=fnFinal> setLevelGoal()</div>
+  IN:  <span class="typeany">int</span> goal
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+The goal can be any of following values. (please note that they cannot be 
+combined)
+
+<div class=code>
+GOAL_ONLY               
+GOAL_UP                
+GOAL_DOWN         
+GOAL_LEFT            
+GOAL_RIGHT         
+GOAL_NO_COMPLETE        
+</div>
+
+GOAL_ONLY: when all goal marked objects are collected
+
+GOAL_UP: when all goal marked objects are collected and player reaches the top 
+of level (LODERUNNER)
+
+GOAL_DOWN: when all goal marked objects are collected and player reaches the 
+bottom of level.
+
+GOAL_LEFT: when all goal marked objects are collected and player reaches the 
+most left position.
+
+GOAL_DOWN: when all goal marked objects are collected and player reaches the 
+most right position .
+
+GOAL_NO_COMPLETE : this requires that the level be declared completed via 
+EndLevel function as to automatic completion is checked.
+
+<div class=code>
+-- prevent this level from being completed automatically
+setLevelGoal(GOAL_NO_COMPLETE);
+</div>
+
+
+
+<a name="setLookup"></a><div class=fnFinal> setLookup()</div>
+  IN:  <span class="typeany">bool</span> lookup
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Enables or disables lookup.
+
+
+
+<a name="setNextSecond"></a><div class=fnUndef> setNextSecond()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="setSpeed"></a><div class=fnFinal> setSpeed()</div>
+  IN:  <span class="typeany">int</span> speed
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Set the game speed. The default value is 90. The maximum value is 200.
+
+The speed is calculated as follow. 1000 / speed = number of cycles per second.
+
+Each cycle is a tick. This is the base unit for everything in the game itself.
+
+Also setTickScale()
+
+
+
+<a name="setTickScale"></a><div class=fnFinal> setTickScale()</div>
+  IN:  <span class="typeany">int</span> tickScale
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Change the level tick scale. This makes the game go faster or slower.
+
+Tick scale is calculate : 1000 / TickRate
+
+TickRate is the number of times per second that the main loop is executed.
+
+See example:
+
+<div class=code>
+-- in this example the tick rate is 95
+-- which is very fast !!!
+
+if SKILL == SKILL_INSANE then
+  debug("=>insane difficulty");
+  setTickScale(1000 / 95);
+  addToHP(-20);
+end
+</div>
+
+
+
+<a name="setWrapFlag"></a><div class=fnFinal> setWrapFlag()</div>
+  IN:  <span class="typeany">int</span> wrapFlag
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+This function modifies the behavior defined for the level. 
+
+Wrap allows object to move from one edge of the map to the other.
+
+A popular example of this is the classic PACMAN.
+
+wrapFlag can be a combination of the following value.
+
+<div class=code>
+WRAP_UP             
+WRAP_DOWN      
+WRAP_LEFT         
+WRAP_RIGHT      
+</div>
+
+<div class=code>
+-- allow wrapping only at the the top of the screen
+setWrapFlag( WRAP_UP );
+-- check the flag to see that change was made
+local wrapFlag = getWrapFlag();
+Debug:printf("A wrapFlag: %d", wrapFlag);
+</div>
+
+
+
+<a name="SHL"></a><div class=fnUndef> SHL()</div>
+  IN:  <span class="typeany">int</span> value
+       <span class="typeany">int</span> bits
+
+  OUT: <span class="typeany">int</span> 
+
+<div class=hdr3>description:</div>
+
+Shift left by x bits.
+
+
+
+<a name="showConsole"></a><div class=fnFinal> showConsole()</div>
+  IN:  <span class="typeany">bool</span> show
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+examples
+
+<div class=code>
+showConsole ( true )
+showConsole ( false )
+</div>
+
+
+
+<a name="SHR"></a><div class=fnUndef> SHR()</div>
+  IN:  <span class="typeany">int</span> value
+       <span class="typeany">int</span> bits
+
+  OUT: <span class="typeany">int</span> 
+
+<div class=hdr3>description:</div>
+
+Shift right by x bits.
+
+
+
+<a name="snapshot_reload"></a><div class=fnUndef> snapshot_reload()</div>
+  IN:  void
+
+  OUT: <span class="typeany">bool</span> 
+
+
+<div class=hdr3>paramOuts:</div>
+
+   bool            Returns true if a snapsnot exists and was reloaded.
+
+
+<div class=hdr3>description:</div>
+
+Reload an exsiting snapshot of the current level.
+
+
+
+<a name="snapshot_take"></a><div class=fnUndef> snapshot_take()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Take a snapshot of the current level. (see snapshot_reload)
+
+
+
+<a name="sprintf"></a><div class=fnFinal> sprintf()</div>
+  IN:  <span class="typeany">string</span> format
+
+  OUT: <span class="typeany">string</span> 
+
+<div class=hdr3>description:</div>
+
+This function formats a text string. Works exactly like it's C counterpart. 
+
+<div class=code>
+local s = sprintf("My name is %s", "Frank");
+-- print the result to the debug console
+Debug:printf(s);
+
+local s = sprintf("1 + 1 = %d", 2);
+-- print the result to the debug console
+Debug:printf(s);
+</div>
+
+
+
+<a name="sprite_activate"></a><div class=fnUntested> sprite_activate()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Activate this sprite.  Inactive sprite do not consume their handlers until they 
+are activated. Activation can be automatic or manual via scripting using this 
+function.
+
+<div class=code>
+activateSprite(self)
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;activateSprite<br>
+
+<a name="sprite_addItem"></a><div class=fnUndef> sprite_addItem()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> protoId
+       <span class="typeany">int</span> count
+
+  OUT: void
+
+
+
+
+<a name="sprite_attackPlayer"></a><div class=fnFinal> sprite_attackPlayer()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: void
+
+
+<div class=hdr3>paramIns:</div>
+
+   objId           obj id of the sprite who is attacking
+
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;attackPlayer<br>
+
+<a name="sprite_callEvent"></a><div class=fnFinal> sprite_callEvent()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> event
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Call an event handler. ObjId is the sprite to receive the event as you can see 
+in the example below.
+
+<div class=code>
+local id = getPlayerC();
+Debug:printf("player_id: %x", id);
+callObjEvent(id, EO_DEATH);
+</div>
+
+Event can be any of the following constants.
+
+<div class=code>
+    EO_SPAWN   
+    EO_ACTIVATE
+    EO_DEATH	
+    EO_HURT	    
+    EO_TOUCH	
+    EO_TRIGGER
+    EO_HANDLER
+    EO_SPLAT	
+    EO_HIT_TEST
+    EO_ZKEY	
+    EO_AUTO	
+    EO_JUMP
+    EO_FALL	
+    EO_LAND	
+    EO_LEAP	
+    EO_MOVE	
+    EO_FIRE	
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;callObjEvent<br>
+
+<a name="sprite_canFall"></a><div class=fnFinal> sprite_canFall()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+return true if the object identified by objId can fall. This is reflected by the 
+current rules on the level.
+
+<div class=code>
+if (canFall ( self )) then
+  debug ("I'm falling !!!");
+end
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;canFall<br>
+
+<a name="sprite_canMove"></a><div class=fnFinal> sprite_canMove()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> aim
+
+  OUT: <span class="typeany">bool</span> 
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;canMove<br>
+
+<a name="sprite_changeTo"></a><div class=fnFinal> sprite_changeTo()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> objType
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Change the sprite to another object based on objType.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;changeTo<br>
+
+<a name="sprite_childCount"></a><div class=fnUntested> sprite_childCount()</div>
+  IN:  <span class="typeany">int</span> spriteId
+
+  OUT: <span class="typeany">int</span> childCount
+
+<div class=hdr3>description:</div>
+
+Count the number of children sprites. There are typically bullets.
+
+
+
+<a name="sprite_clear"></a><div class=fnFinal> sprite_clear()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Clear a sprite and mark the entry for garbage collection.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;clearSprite<br>
+
+<a name="sprite_copy"></a><div class=fnFinal> sprite_copy()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">int</span> newObjId
+
+
+<div class=hdr3>paramOuts:</div>
+
+   int             the objId of the new object that was created.
+
+
+<div class=hdr3>description:</div>
+
+copy a sprite and create a new instance. This function returns the ObjId handle 
+if succesful or -1 on failure.
+
+CAUTION: using this function inside an handler such as OnSpawn can cause an 
+infinite loop which will crash the engine.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;copySpriteC<br>
+
+<a name="sprite_frameCount"></a><div class=fnFinal> sprite_frameCount()</div>
+  IN:  <span class="typeany">int</span> objid
+
+  OUT: <span class="typeany">int</span> number_of_frames
+
+<div class=hdr3>description:</div>
+
+Get the frame count for a given sprite. This is based on the current frameset 
+associated with this sprite.
+
+
+
+<a name="sprite_freeze"></a><div class=fnFinal> sprite_freeze()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Set the freeze flag to on. This will cause the sprite to stop moving. Engine 
+class and animation handlers will honor this flag.
+
+It is your responsability to support this flag in custom handlers of your own 
+making.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;freezeSprite<br>
+
+<a name="sprite_get"></a><div class=fnUndef> sprite_get()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">string</span> name
+
+  OUT: <span class="typeany">int</span> value
+
+
+
+
+<a name="sprite_getClass"></a><div class=fnFinal> sprite_getClass()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">int</span> classId
+
+
+<div class=hdr3>paramOuts:</div>
+
+   int             class id of this object
+
+
+<div class=hdr3>description:</div>
+
+Return the class of a given object. The classId is one of the predefined 
+constants CLASS_XXXXX.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;getObjClass<br>
+
+<a name="sprite_getExtra"></a><div class=fnFinal> sprite_getExtra()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">array</span> 
+
+<div class=hdr3>description:</div>
+
+Returns an array containing the sprite's extra data.
+
+You can access this information via the following indexes.
+
+<div class=code>
+    EXTRA_ORGPROTO
+    EXTRA_ORGX
+    EXTRA_ORGY
+    EXTRA_HP
+    EXTRA_OLDAIM1
+    EXTRA_OLDAIM2
+    EXTRA_FALLHEIGHT
+    EXTRA_LIVES
+    EXTRA_ACTIVE
+    EXTRA_BULLETCOUNT
+    EXTRA_OWNER
+    EXTRA_FLAGS
+    EXTRA_PATHDIR
+    EXTRA_PATHPTR
+    EXTRA_ANIMSEQ
+    EXTRA_ANIMPTR
+    EXTRA_ANIMSPEED
+    EXTRA_DEATHINDICATOR
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;getExtraC<br>
+
+<a name="sprite_getHeight"></a><div class=fnUntested> sprite_getHeight()</div>
+  IN:  <span class="typeany">int</span> sprite_id
+
+  OUT: <span class="typeany">int</span> height
+
+<div class=hdr3>description:</div>
+
+Get the sprite heigth.
+
+
+
+<a name="sprite_getHitTest"></a><div class=fnFinal> sprite_getHitTest()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> aim
+
+  OUT: <span class="typeany">array</span> bk
+       <span class="typeany">array</span> fw
+       <span class="typeany">array</span> ac
+       <span class="typeany">int</span> flags
+       <span class="typeany">bool</span> player
+
+<div class=hdr3>description:</div>
+
+Performs a hit test for a given object (sprite) and return the result. This raw 
+data straight from the game engine. Of course if you are looking at this 
+function it's because you are into writing ai and advances engine extension so 
+you ought to expect a bit of complexity.
+
+The objId is generally the "self" variable you would get from the object handler.
+ Although, it could also be obtained with something else like findSprite().
+
+Possible values for aim are UP, DOWN, LEFT, RIGHT and HERE, These values cannot 
+be combined.
+
+<div class=code>
+local bk, fw, ac, flags, player = getHitTestC( self,  UP  );
+</div>
+
+The results of this function can be a bit confusing. For starters, "flags" can 
+be a combination of any of the following. 
+
+<div class=code>
+    FLAG_NONE		   
+    FLAG_METAL		   
+    FLAG_NOSOUND       
+    FLAG_WATER	
+    FLAG_DEATH	
+    FLAG_HIT		    
+    FLAG_TELEPORT       
+</div>
+
+bk is an array of classes.
+
+fw is an array of classes and objId. There value are in pair starting at index 1.
+
+
+ac is an array of classes and objId. There value are in pair starting at index 1.
+
+
+<div class=code>
+for i=1, #fw, 2 do
+  local class = fw[i] ;
+  local objId = fw[i + 1];
+  -- do something else ....   
+end
+
+for i=1, #ac, 2 do
+  local class = ac[i] ;
+  local objId = ac[i + 1];
+  -- do something else ....   
+end
+</div>
+
+player is boolean that indicate whether or not the player is there.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;getHitTestC<br>
+
+<a name="sprite_getHP"></a><div class=fnUndef> sprite_getHP()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">int</span> hp
+
+<div class=hdr3>description:</div>
+
+Get the sprite HP
+
+
+
+<a name="sprite_getName"></a><div class=fnFinal> sprite_getName()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">string</span> name
+
+
+<div class=hdr3>paramOuts:</div>
+
+   string          name of the object
+
+
+<div class=hdr3>description:</div>
+
+Returns a string containg the object name. (null terminated string, max 31 
+characters)
+
+<div class=code>
+Debug:printf("player picked up a %s", getObjName(self));
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;getObjName<br>
+
+<a name="sprite_getObjType"></a><div class=fnFinal> sprite_getObjType()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">int</span> objType
+
+<div class=hdr3>description:</div>
+
+Get the object type for a given object ( e.g. instance ). 
+
+these values can be corrolated with the OBJECT_XXXX constants defined by LGCK 
+for your game.
+
+example:
+
+<div class=code>
+debug("type: " .. getObjType( self ));
+debug("name:" .. getObjName( self ));
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;getObjType<br>
+
+<a name="sprite_getString"></a><div class=fnUntested> sprite_getString()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">string</span> 
+
+<div class=hdr3>description:</div>
+
+Get the custom hint/description associated with a given sprite.
+
+
+
+<a name="sprite_getTriggerKey"></a><div class=fnFinal> sprite_getTriggerKey()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">int</span> triggerKey
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;getTriggerKey<br>
+
+<a name="sprite_getUID"></a><div class=fnFinal> sprite_getUID()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">int</span> uid
+
+<div class=hdr3>description:</div>
+
+Returns extraData uid for a given sprite.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;getExtraUID<br>
+
+<a name="sprite_getVars"></a><div class=fnFinal> sprite_getVars()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+       <span class="typeany">int</span> aim
+       <span class="typeany">int</span> objectType
+       <span class="typeany">int</span> imageSetId
+       <span class="typeany">int</span> imageNo
+       <span class="typeany">int</span> triggerFlag
+       <span class="typeany">int</span> stateFlag
+       <span class="typeany">int</span> actionMask
+
+<div class=hdr3>description:</div>
+
+* triggerFlag bit mask
+    01, 02, 04, 08, 10  TRIGGER_KEYS		= 0x1f
+    20               	TRIGGER_GOAL		= 0x20
+    40               	TRIGGER_FROZEN		= 0x40
+    80               	TRIGGER_HIDDEN		= 0x80
+
+  to get the triggerKey out of triggerFlag use `AND (triggerFlag, TRIGGER_KEYS)`.
+
+
+  goal, frozen and hidden can be access using the TRIGGER_xxxx method above
+  see common.lua for the definitions.
+
+  this is stuff for advanced users
+
+  * stateFlag
+  
+  use STATE_XXXX constants
+
+<div class=code>
+local x;
+local y;
+local aim;
+x , y, aim = getSpriteVars( self );
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;getSpriteVars<br>
+
+<a name="sprite_getWidth"></a><div class=fnUntested> sprite_getWidth()</div>
+  IN:  <span class="typeany">int sprite_id</span> 
+
+  OUT: <span class="typeany">int</span> width
+
+<div class=hdr3>description:</div>
+
+Get the sprite width (pixels).
+
+
+
+<a name="sprite_hasItem"></a><div class=fnUndef> sprite_hasItem()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> protoId
+
+  OUT: <span class="typeany">bool</span> hasItem
+
+
+
+
+<a name="sprite_hide"></a><div class=fnFinal> sprite_hide()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Set the hidden flag on this sprite. This will cause the engine to not display 
+this given sprite/object. All system based classes will also ignore this sprite 
+until it becomes visible again.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;hideSprite<br>
+
+<a name="sprite_isActive"></a><div class=fnUntested> sprite_isActive()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">bool</span> active
+
+<div class=hdr3>description:</div>
+
+Return the active state of a given sprite. (bool: true, false)
+
+
+
+<a name="sprite_isDead"></a><div class=fnFinal> sprite_isDead()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+returns true if the sprite is dead.
+
+<div class=code>
+if isDead(self) then
+   Debug:printf("This sprite is dead");
+end
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;isDead<br>
+
+<a name="sprite_isFrozen"></a><div class=fnUndef> sprite_isFrozen()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">bool</span> frozen
+
+<div class=hdr3>description:</div>
+
+returns true if the sprite is frozen.
+
+
+
+<a name="sprite_isGoal"></a><div class=fnUndef> sprite_isGoal()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">bool</span> goal
+
+<div class=hdr3>description:</div>
+
+returns true if the sprite is marked as a goal.
+
+
+
+<a name="sprite_isHidden"></a><div class=fnUntested> sprite_isHidden()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+Return true if this object is hidden. Please note that this doesn't apply to 
+system invisible objects which are not considered hidden in the strict sense of 
+the word here.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;isHidden<br>
+
+<a name="sprite_isMonster"></a><div class=fnUntested> sprite_isMonster()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+returns true if the object is a monster.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;isMonster<br>
+
+<a name="sprite_isPlayer"></a><div class=fnUntested> sprite_isPlayer()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+Tests if the sprite is a player object. Returns true if sprite is of player 
+class.
+
+
+
+<a name="sprite_isPlayerThere"></a><div class=fnFinal> sprite_isPlayerThere()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> aim
+
+  OUT: <span class="typeany">bool</span> 
+
+
+<div class=hdr3>paramIns:</div>
+
+   objId           
+   aim             UP, DOWN, LEFT or RIGHT
+
+
+
+<div class=hdr3>paramOuts:</div>
+
+   bool            true if player is there, otherwise false
+
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;isPlayerThere<br>
+
+<a name="sprite_isVisible"></a><div class=fnFinal> sprite_isVisible()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: <span class="typeany">bool</span> 
+
+
+<div class=hdr3>paramOuts:</div>
+
+   bool            true if visible on screen, otherwise false
+
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;isVisible<br>
+
+<a name="sprite_kill"></a><div class=fnFinal> sprite_kill()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Don't try this inside the sprite's own event handler!!!
+Don't use this on a player object. Use killPlayer() or player:setState( STATE_
+DEAD ) instead as this will not have the desired effect.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;killSprite<br>
+
+<a name="sprite_land"></a><div class=fnUntested> sprite_land()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+The land() method is called by the engine whenever a sprite has landed (
+following a fall). The usefulness of this method is debatable at runtime. 
+However, it is made available should be it prove useful in custom handlers/ai 
+where this functionality might have a purpose. (e.g. if you are creating a 
+custom monster whereas the engine will not handle these details for you)
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;land<br>
+
+<a name="sprite_map"></a><div class=fnFinal> sprite_map()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: void
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;mapSprite<br>
+
+<a name="sprite_markAsGoal"></a><div class=fnFinal> sprite_markAsGoal()</div>
+  IN:  <span class="typeany">int objId</span> 
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Set the sprite to be a goal for the level to be completed.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;markSpriteAsGoal<br>
+
+<a name="sprite_move"></a><div class=fnFinal> sprite_move()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> aim
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+aim is one of the UP, DOWN, LEFT and RIGHT constants
+
+you generally check to see of the object can move in a given direction using 
+canMove()
+
+------
+
+you generally check to see if the object can move in a given direction using 
+canMove()
+
+int objId
+int tx
+int ty
+
+this second version also allows you to control the translation from current 
+position. if you want defined where to position it then use moveSpriteTo().
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;moveSprite<br>
+
+<a name="sprite_moveBy"></a><div class=fnFinal> sprite_moveBy()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> tx
+       <span class="typeany">int</span> tx
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+you generally check to see of the object can move in a given direction using 
+canMove()
+
+this allows you to control the translation from current position. if you want 
+defined where to position it then use moveSpriteTo().
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;moveSpriteBy<br>
+
+<a name="sprite_moveTo"></a><div class=fnFinal> sprite_moveTo()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+note: prior to moving, animating, killing or deleting a sprite you should first
+use unMapSprite(). if you wish to still use it you will also  need to use 
+mapSprite after the transformation.
+
+Please ensure that x and y coordonates are multiples of 8 and within the 
+game world. You can do that with the bitwise operator AND (x, 0xfff8).
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;moveSpriteTo<br>
+
+<a name="sprite_new"></a><div class=fnFinal> sprite_new()</div>
+  IN:  <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+       <span class="typeany">int</span> aim
+       <span class="typeany">int</span> objectType
+       <span class="typeany">int</span> imageSet*
+       <span class="typeany">int</span> imageNo*
+
+  OUT: <span class="typeany">int</span> objId
+
+<div class=hdr3>description:</div>
+
+although it might not make any real difference but performance wise addSpriteC 
+is probably faster that addSprite (if you don't need the extra overhead).
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;addSpriteC<br>
+
+<a name="sprite_removeItem"></a><div class=fnUndef> sprite_removeItem()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> protoId
+
+  OUT: void
+
+
+
+
+<a name="sprite_resetInventory"></a><div class=fnUndef> sprite_resetInventory()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: void
+
+
+
+
+<a name="sprite_set"></a><div class=fnFinal> sprite_set()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">string</span> name
+       <span class="typeany">int</span> value
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Set a custome sprite property.
+
+
+
+<a name="sprite_setAim"></a><div class=fnFinal> sprite_setAim()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> aim
+
+  OUT: void
+
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;setAim<br>
+
+<a name="sprite_setHP"></a><div class=fnUntested> sprite_setHP()</div>
+  IN:  <span class="typeany">int</span> hp
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Set the sprite hit points
+
+
+
+<a name="sprite_setImage"></a><div class=fnFinal> sprite_setImage()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> imageSet
+       <span class="typeany">int</span> imageNo
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Change the image for a given sprite.
+
+The example below shows best practice. Alternative methods include tryAnimation()
+.
+
+<div class=code>
+local imageSet;
+local imageNo;
+imageSet, imageNo = getImage(selt);
+setImage(self, imageSet, XOR(imageNo, 1));
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;setImage<br>
+
+<a name="sprite_setOwner"></a><div class=fnUntested> sprite_setOwner()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> ownerid
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Set the owner of this sprite
+
+
+
+<a name="sprite_setState"></a><div class=fnFinal> sprite_setState()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> stateFlag
+       <span class="typeany">bool</span> flip
+
+  OUT: <span class="typeany">int</span> stateFlag
+
+<div class=hdr3>description:</div>
+
+Change the state flags for a given sprite.
+
+if flip is true the bits are set on otherwise they are cleared.
+
+State flag is a combination of the following:
+
+<div class=code>
+    STATE_FALL		
+    STATE_DEAD	
+    STATE_HIT		    
+    STATE_JUMP	
+    STATE_BEGINNING    
+    STATE_FIRING       
+    STATE_LOOKUP       
+</div>
+
+returns the newly modified stateFlag.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;setState<br>
+
+<a name="sprite_setTriggerKey"></a><div class=fnFinal> sprite_setTriggerKey()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> key
+
+  OUT: void
+
+
+<div class=hdr3>paramIns:</div>
+
+   objId           
+   key             valid values are between 1 and 31
+
+
+<div class=hdr3>description:</div>
+
+changes the trigger key of a given obj. if set to zero, this will clear the 
+trigger key
+entirely. values will be binary AND with 0x1f to ensure they are within limit. 
+Valid trigger keys are between 1 and 31.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;setTriggerKey<br>
+
+<a name="sprite_show"></a><div class=fnFinal> sprite_show()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+show the current sprite. This reverses the hideSprite() function. If the sprite 
+is already visible this will not have any effect on it.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;showSprite<br>
+
+<a name="sprite_spawn"></a><div class=fnUntested> sprite_spawn()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Spawn is called upon during the creation of a new sprite to initialize the 
+member variables. It's usefulness at runtime is debatable. However, it is 
+available should there be a need for it.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;spawn<br>
+
+<a name="sprite_stopAnimation"></a><div class=fnFinal> sprite_stopAnimation()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Stop the current animation sequence. This is also breaks repeating animations.
+
+<div class=code>
+stopAnimation(self);
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;stopAnimation<br>
+
+<a name="sprite_testFlags"></a><div class=fnFinal> sprite_testFlags()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> mask
+
+  OUT: <span class="typeany">bool</span> true if bitwise matched
+
+<div class=hdr3>description:</div>
+
+note: currently this function only works with the player object
+      flags are outlined as const FLAG_xxxxx
+
+you must supply both args or the function will return false
+and spit out a warning on the debug console
+  
+<div class=code>
+  local sound = "";
+  if not testFlags(self,  FLAG_NOSOUND)  then
+    if  testFlags(self , FLAG_METAL)   then
+	  sound = "METAL";
+    else
+      if ticks % 12 == 0 then
+	  sound = "WALK2";
+      else
+	  sound = "WALK";
+      end
+    end
+    playSound( sound );
+  end
+</div>
+
+The mask can be a combination of any of the following. Although, generally 
+speaking you want to include only one.
+
+<div class=code>
+    FLAG_NONE		   
+    FLAG_METAL		   
+    FLAG_NOSOUND       
+    FLAG_WATER	
+    FLAG_DEATH	
+    FLAG_HIT		    
+    FLAG_TELEPORT       
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;testFlags<br>
+
+<a name="sprite_togglePathPlayback"></a><div class=fnUndef> sprite_togglePathPlayback()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">bool</span> enable
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Toggle playback of custom path.
+
+
+
+<a name="sprite_triggerHitState"></a><div class=fnFinal> sprite_triggerHitState()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Trigger the hit state for a given object. This is usually called when the object 
+is "hurt". 
+
+ObjId is the sprite id. 
+
+No return value.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;triggerHitState<br>
+
+<a name="sprite_tryAnimation"></a><div class=fnFinal> sprite_tryAnimation()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> animSeq
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+This plays a designated animation sequence for a given objectId. If you are 
+using this function inside an event handle, the objectId is often the `self` 
+variable which points to the object being handled.
+
+The animation sequence is one of the following values. In order to use this 
+animation, the target object must have corresponding images attached to it.
+
+<div class=code>
+AS_DEFAULT 
+AS_IDLE       
+AS_CUSTOM1    
+AS_CUSTOM2    
+AS_STAND        
+AS_STAND_UP
+AS_STAND_DOWN  
+AS_STAND_LEFT  
+AS_STAND_RIGHT  
+AS_MOVE       
+AS_MOVE_UP     
+AS_MOVE_DOWN    
+AS_MOVE_LEFT    
+AS_MOVE_RIGHT  
+AS_JUMP         
+AS_JUMP_UP 
+AS_JUMP_DOWN  
+AS_JUMP_LEFT   
+AS_JUMP_RIGHT  
+AS_HURT        
+AS_HURT_UP      
+AS_HURT_DOWN 
+AS_HURT_LEFT    
+AS_HURT_RIGHT 
+AS_ATTACK      
+AS_ATTACK_UP    
+AS_ATTACK_DOWN  
+AS_ATTACK_LEFT 
+AS_ATTACK_RIGHT 
+AS_RUN          
+AS_RUN_UP     
+AS_RUN_DOWN    
+AS_RUN_LEFT     
+AS_RUN_RIGHT   
+AS_DEAD        
+AS_DEAD_UP      
+AS_DEAD_DOWN    
+AS_DEAD_LEFT   
+AS_DEAD_RIGHT  
+</div>
+
+This function returns true if succesful or false if the animSeq value is out of 
+bound or the object has no animation sequence defined which match the animSeq 
+value.
+
+<div class=code>
+if tryAnimation(self,  AS_DEAD_UP) then
+   debug("animation worked!!! :D");
+end
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;tryAnimation<br>
+
+<a name="sprite_tryPath"></a><div class=fnFinal> sprite_tryPath()</div>
+  IN:  <span class="typeany">int</span> objId
+       <span class="typeany">int</span> pathDir
+       <span class="typeany">int</span> aim*
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+Have the designated object try a path. The pathDir can be any of the following 
+constants.
+
+<div class=code>
+        PS_DEFAULT     
+        PS_IDLE        
+        PS_CUSTOM1      
+        PS_CUSTOM2    
+        PS_ATTACK      
+        PS_ATTACK_UP 
+        PS_ATTACK_DOWN 
+        PS_ATTACK_LEFT 
+        PS_ATTACK_RIGHT
+        PS_JUMP        
+        PS_JUMP_UP
+        PS_JUMP_DOWN    
+        PS_JUMP_LEFT  
+        PS_JUMP_RIGHT  
+        PS_JUMP_UP_LEFT 
+        PS_JUMP_UP_RIGHT
+        PS_JUMP_DN_LEFT
+        PS_JUMP_DN_RIGHT
+        PS_MOVE       
+        PS_MOVE_UP
+        PS_MOVE_DOWN  
+        PS_MOVE_LEFT  
+        PS_MOVE_RIGHT  
+        PS_MOVE_UP_LEFT
+        PS_MOVE_UP_RIGHT
+        PS_MOVE_DN_LEFT 
+        PS_MOVE_DN_RIGHT
+</div>
+
+Aim can be either UP, DOWN, LEFT or RIGHT.  If aim is not provided, INVALID is 
+assumed.
+
+Return true if the path defined. This function is similar to tryAnimation().  It 
+only works with the player at the moment.
+
+<div class=code>
+local id = getPlayerC();
+Debug:printf("player_id: %x", id);
+tryPath(id, PS_JUMP_LEFT);
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;tryPath<br>
+
+<a name="sprite_unFreeze"></a><div class=fnFinal> sprite_unFreeze()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Reverse the effect of freezeSprite. reactivative it.
+
+another way of doing this is through the Sprite interface.
+
+<div class=code>
+activateSprite(self);
+
+-- is equivalent to
+
+local sprite;
+sprite = getSprite(self);
+sprite:activate();
+</div>
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;unFreezeSprite<br>
+
+<a name="sprite_unMap"></a><div class=fnFinal> sprite_unMap()</div>
+  IN:  <span class="typeany">int</span> objId
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+unMapSprite is required before making any changes to a sprite's position, 
+visibility or attributes.  not doing so will result in very nasty and hard to 
+track bugs.
+
+
+
+<div class=hdr3>alias:</div>
+&nbsp;&nbsp;&nbsp;&nbsp;unMapSprite<br>
+
+<a name="ss_animate"></a><div class=fnFinal> ss_animate()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+internal. Used by the engine to animate all sprites.
+
+
+
+<a name="ss_autoCenter"></a><div class=fnFinal> ss_autoCenter()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+internal
+
+
+
+<a name="ss_clear"></a><div class=fnUndef> ss_clear()</div>
+  IN:  <span class="typeany">int</span> red
+       <span class="typeany">int</span> green
+       <span class="typeany">int</span> blue
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Clear the screen with a given color.
+
+
+
+<a name="ss_clearKeys"></a><div class=fnFinal> ss_clearKeys()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Internal. Clear keyboard map.
+
+
+
+<a name="ss_doManage"></a><div class=fnFinal> ss_doManage()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+internal. Used by the engine to manage all sprite interactions in the game 
+context.
+
+
+
+<a name="ss_drawText"></a><div class=fnFinal> ss_drawText()</div>
+  IN:  <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+       <span class="typeany">string</span> text
+       <span class="typeany">int</span> fontid
+       <span class="typeany">int</span> fontSize
+       <span class="typeany">int</span> rgba
+       <span class="typeany">int</span> shadowOffset*
+       <span class="typeany">int</span> shadowColor*
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Draw text on the screen at x,y. Memory arrangement of the rgba color is 
+0xAABBGGRR. This function must be executed within the onDraw function otherwise 
+it will have no effect.
+
+<div class=code>
+ss_drawText(100, 50, "This is a test", 0, 20, 0xa0ee20cc, 2, 0xffffffff);
+</div>
+
+
+
+<a name="ss_getNextTick"></a><div class=fnFinal> ss_getNextTick()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> 
+
+<div class=hdr3>description:</div>
+
+Returns time in milliseconds of the next engine tick.
+
+
+
+<a name="ss_getPause"></a><div class=fnFinal> ss_getPause()</div>
+  IN:  void
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+This function returns true if the game is paused,
+
+
+
+<a name="ss_manageAuto"></a><div class=fnFinal> ss_manageAuto()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+internal
+
+
+
+<a name="ss_manageKeyEvents"></a><div class=fnFinal> ss_manageKeyEvents()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+internal
+
+
+
+<a name="ss_managePlayer"></a><div class=fnFinal> ss_managePlayer()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+internal.
+
+
+
+<a name="ss_manageTasks"></a><div class=fnFinal> ss_manageTasks()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+internal
+
+
+
+<a name="ss_notifyClosure"></a><div class=fnUndef> ss_notifyClosure()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+SYTEM FUNCTION  - Notfy all sprites that a closure event in eminent. This will 
+repeate until the event is resolved.
+
+calls onNotifyClosure()
+EO_NOTIFYCLOSURE
+
+
+
+<a name="ss_paint"></a><div class=fnFinal> ss_paint()</div>
+  IN:  <span class="typeany">int</span> x1
+       <span class="typeany">int</span> y1
+       <span class="typeany">int</span> x2
+       <span class="typeany">int</span> y2
+       <span class="typeany">unsigned int</span> rgba
+       <span class="typeany">bool</span> fill
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Draw a rectangle of a given color. If fill is set the rectangle is full 
+otherwise it will be hollow. Memory arrangement of the rgba color is 0xAABBGGRR.
+ This function must be executed within the onDraw function otherwise it will 
+have no effect.
+
+<div class=code>
+ss_paint(0,0,40,40, 0xaa00aa90, TRUE);
+</div>
+
+
+
+<a name="ss_paintImage"></a><div class=fnUndef> ss_paintImage()</div>
+  IN:  <span class="typeany">int</span> x
+       <span class="typeany">int</span> y
+       <span class="typeany">int</span> frameSet
+       <span class="typeany">int</span> frameNo
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+internal. Draw an image on screen at x,y.
+
+
+
+<a name="ss_setNextTick"></a><div class=fnFinal> ss_setNextTick()</div>
+  IN:  <span class="typeany">int</span> time
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Set the time in milliseconds for the next engine tick.
+
+
+
+<a name="stopStream"></a><div class=fnFinal> stopStream()</div>
+  IN:  void
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Stop a playing sound/music stream
+
+<div class=code>
+stopStream();
+</div>
+
+
+
+<a name="strv_del"></a><div class=fnUndef> strv_del()</div>
+  IN:  <span class="typeany">string</span> key
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Delete global string
+
+
+
+<a name="strv_get"></a><div class=fnFinal> strv_get()</div>
+  IN:  <span class="typeany">string</span> key
+
+  OUT: <span class="typeany">string</span> val
+
+<div class=hdr3>description:</div>
+
+Get global string
+
+
+
+<a name="strv_set"></a><div class=fnFinal> strv_set()</div>
+  IN:  <span class="typeany">string</span> key
+       <span class="typeany">string</span> val
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Set global string
+
+
+
+<a name="testJoyState"></a><div class=fnFinal> testJoyState()</div>
+  IN:  <span class="typeany">int</span> mask
+
+  OUT: <span class="typeany">bool</span> true if bitwise matched, otherwise 
+false
+
+
+<div class=hdr3>paramIns:</div>
+
+   mask            bitwise mask
+
+
+<div class=hdr3>description:</div>
+
+note: currently this function only works with the player object
+
+  states are outlined as const JOY_xxxxx
+
+<div class=code>
+  if (ticks % 5 == 0) and testJoyState( JOY_FIRE ) then
+    local x;
+    local y;
+    local aim;
+  
+    x , y, aim = getSpriteVars( self );
+
+    if testJoyState( JOY_LEFT ) then 
+      aim = LEFT;
+      x = x - 8;
+      y = y + 8;
+    elseif testJoyState( JOY_RIGHT ) then
+      aim = RIGHT;
+      x = x + 32;
+      y = y + 8;
+    elseif testJoyState( JOY_UP ) then
+      aim = UP;
+      x = x + 8;
+      y = y - 8;
+    elseif testJoyState( JOY_DOWN ) then
+      aim = DOWN;
+      x = x + 8;
+      y = y + 32;
+    end 
+
+    local bullet = addSprite (
+      x, 
+      y, 
+      aim,					-- UP, DOWN, LEFT, RIGHT
+    OBJECT_BULLET_LITTLE_STAR__PLY_		-- put the object type 
+    );
+
+    playSound("pow.ogg");
+  end
+</div>
+
+
+
+<a name="testKey"></a><div class=fnUntested> testKey()</div>
+  IN:  <span class="typeany">int</span> keyCode
+
+  OUT: <span class="typeany">bool</span> 
+
+<div class=hdr3>description:</div>
+
+The keyCode can be any of the following values. This fucntion returns true if 
+the key is pressed. Other values may have unpredictable results.
+
+<div class=code>
+   KEY_A                = 0x61;
+    KEY_B                = 0x62;
+    KEY_C                = 0x63;
+    KEY_D                = 0x64;
+    KEY_E                = 0x65;
+    KEY_F                = 0x66;
+    KEY_G                = 0x67;
+    KEY_H                = 0x68;
+    KEY_I                = 0x69;
+    KEY_J                = 0x6a;
+    KEY_K                = 0x6b;
+    KEY_L                = 0x6c;
+    KEY_M                = 0x6d;
+    KEY_N                = 0x6e;
+    KEY_O                = 0x6f;
+    KEY_P                = 0x70;
+    KEY_Q                = 0x71;
+    KEY_R                = 0x72;
+    KEY_S                = 0x73;
+    KEY_T                = 0x74;
+    KEY_U                = 0x75;
+    KEY_V                = 0x76;
+    KEY_W                = 0x77;
+    KEY_X                = 0x78;
+    KEY_Y                = 0x79;
+    KEY_Z                = 0x7a;
+    KEY_0                = 0x30;
+    KEY_1                = 0x31;
+    KEY_2                = 0x32;
+    KEY_3                = 0x33;
+    KEY_4                = 0x34;
+    KEY_5                = 0x35;
+    KEY_6                = 0x36;
+    KEY_7                = 0x37;
+    KEY_8                = 0x38;
+    KEY_9                = 0x39;
+    KEY_F1               = 0x131;
+    KEY_F2               = 0x132;
+    KEY_F3               = 0x133;
+    KEY_F4               = 0x134;
+    KEY_F5               = 0x135;
+    KEY_F6               = 0x136;
+    KEY_F7               = 0x137;
+    KEY_F8               = 0x138;
+    KEY_F9               = 0x139;
+    KEY_ESCAPE           = 0x100;
+    KEY_CTRL             = 0x101;
+    KEY_SHIFT            = 0x102;
+    KEY_ALT              = 0x103;
+    KEY_MENU             = 0x109;
+    KEY_LBRACKET         = 0x10a;
+    KEY_RBRACKET         = 0x10b;
+    KEY_SEMICOLON        = 0x10c;
+    KEY_COMA             = 0x10d;
+    KEY_PERIOD           = 0x10e;
+    KEY_QUOTE            = 0x10f;
+    KEY_SLASH            = 0x110;
+    KEY_BACKSLASH        = 0x111;
+    KEY_TILDE            = 0x112;
+    KEY_EQUAL            = 0x113;
+    KEY_MINUS            = 0x114;
+    KEY_SPACE            = 0x115;
+    KEY_RETURN           = 0x116;
+    KEY_BACKSPACE        = 0x117;
+    KEY_TAB              = 0x118;
+    KEY_PAGEUP           = 0x119;
+    KEY_PAGEDOWN         = 0x11a;
+    KEY_END              = 0x11b;
+    KEY_HOME             = 0x11c;
+    KEY_INSERT           = 0x11d;
+    KEY_DELETE           = 0x11e;
+    KEY_PLUS             = 0x11f;
+    KEY_MINUS            = 0x120;
+    KEY_MULTIPLY         = 0x121;
+    KEY_DIVIDE           = 0x122;
+    KEY_LEFT             = 0x123;
+    KEY_RIGHT            = 0x124;
+    KEY_UP               = 0x125;
+    KEY_DOWN             = 0x126;
+    KEY_PAUSE            = 0x140;    
+</div>
+
+
+
+<a name="ticks"></a><div class=fnFinal> ticks()</div>
+  IN:  void
+
+  OUT: <span class="typeany">int</span> ticks
+
+<div class=hdr3>description:</div>
+
+This is just an alias. see getTicks() for details.
+
+
+
+<a name="triggerPlayerHitState"></a><div class=fnFinal> triggerPlayerHitState()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="updateHP"></a><div class=fnUndef> updateHP()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="updateJoyState"></a><div class=fnUndef> updateJoyState()</div>
+  IN:  void
+
+  OUT: void
+
+
+
+
+<a name="var_del"></a><div class=fnUndef> var_del()</div>
+  IN:  <span class="typeany">string</span> 
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+delete a variable from global
+
+
+
+<a name="var_get"></a><div class=fnUndef> var_get()</div>
+  IN:  <span class="typeany">string</span> key
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Retrieve an engine global variable.
+
+
+
+<a name="var_set"></a><div class=fnUndef> var_set()</div>
+  IN:  <span class="typeany">string</span> key
+       <span class="typeany">int</span> value
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Register a variable with the engine.
+
+
+
+<a name="warpTo"></a><div class=fnFinal> warpTo()</div>
+  IN:  <span class="typeany">string</span> uuid
+
+  OUT: void
+
+<div class=hdr3>description:</div>
+
+Warp to a different level. This function accepts the level's UUID or zero based 
+index as input.
+
+<div class=code>
+
+warpTo(2)
+
+warpTo("50d1-42c5-0112-e964")
+
+</div>
+
+
+
+<a name="XOR"></a><div class=fnFinal> XOR()</div>
+  IN:  <span class="typeany">int</span> a
+       <span class="typeany">int</span> b
+
+  OUT: <span class="typeany">int</span> binary eXclusive OR (a , b)
+
+<div class=hdr3>description:</div>
+
+<div class=code>
+
+  XOR (1, 7)  -- expected resut:  6
+
+  -- explanation
+  1 = 1000
+  7 = 1110
+    XOR
+  6 = 0110
+
+  XOR (2, 3)  -- expected resut: 1
+
+  -- explanation
+  2 = 0100
+  3 = 1100
+    XOR
+  1 = 1000
+
+  etc.
+
+</div>
+  </pre>
+ </body>
+</html>
