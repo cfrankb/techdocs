@@ -1,0 +1,23 @@
+https://www.sslshopper.com/certificate-authority-reviews.html
+
+https://www.startssl.com/
+https://www.certum.eu/
+
+http://stackoverflow.com/questions/1177552/code-signing-certificate-for-open-source-projects
+http://social.technet.microsoft.com/wiki/contents/articles/14215.windows-and-windows-phone-8-ssl-root-certificate-program-member-cas.aspx 
+
+http://stackoverflow.com/questions/1177552/code-signing-certificate-for-open-source-projects\
+
+
+https://author.tucows.com/
+
+
+http://stackoverflow.com/questions/252226/signing-a-windows-exe-file
+
+You can get a free code signing certificate from Certum if you're doing open source development.
+I've been using their certificate for over a year, and it does get rid of the unknown publisher message from Windows.
+As far as signing code I use signtool.exe from a script like this:
+signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "MyCert.pfx" /p MyPassword /d SignedFile.exe SignedFile.exe
+
+
+https://www.dougv.com/2008/09/my-experience-getting-a-code-signing-certificate-from-comodo/

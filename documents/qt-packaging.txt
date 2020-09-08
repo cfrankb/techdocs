@@ -1,0 +1,10 @@
+https://snapcraft.io/install/snapcraft/arch
+https://forum.snapcraft.io/t/c-c-applications/7817
+https://forum.snapcraft.io/t/qt5-and-kde-frameworks-applications/13753
+https://ubuntu.com/tutorials/create-your-first-snap#3-building-a-snap-is-easy
+
+
+$  snapcraft init
+Created snap/snapcraft.yaml.
+Go to https://docs.snapcraft.io/the-snapcraft-format/8337 for more information about the snapcraft.yaml format.
+

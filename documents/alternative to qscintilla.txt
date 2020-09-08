@@ -1,0 +1,43 @@
+https://doc.qt.io/qt-5/qtwidgets-widgets-codeeditor-example.html
+https://doc.qt.io/qt-5/qtwidgets-richtext-syntaxhighlighter-example.html
+https://doc.qt.io/qt-5/qtwidgets-tools-customcompleter-example.html
+
+
+https://github.com/andreikop/qutepart-cpp/tree/indent
+
+
+/*    setBraceMatching(QsciScintilla::SloppyBraceMatch);
+    setAutoCompletionFillupsEnabled(false);
+    setIndentationGuidesBackgroundColor(QColor("#e6e6de"));
+    setCaretLineBackgroundColor(QColor("#e6fff0"));
+    setCaretLineVisible(true);
+    setIndentationGuidesBackgroundColor(QColor("#e6e6de"));
+    ensureLineVisible(1);
+    setUtf8(true);
+    */
+    
+    
+    //connect(this, SIGNAL(cursorPositionChanged(int,int)),this, SLOT(CursorAtIndex(int,int)))   ;
+
+    //SendScintilla(SCI_STYLESETFORE, SCE_LUA_WORD5, 0xff00ff);
+    //SendScintilla(SCI_SETTABWIDTH, 8);
+    //SendScintilla(SCI_SETTABINDENTS, false);
+    // doesn't work
+    // https://github.com/paralect/robomongo-deps/blob/master/deps/qscintilla/Qt3/qscistyle.cpp
+    //SendScintilla(SCI_STYLESETBOLD, SCE_LUA_WORD5, true);
+
+    //SCI_STYLEGETBOLD(int styleNumber)
+
+/*void CWEdit::insertText(const char *text)
+{
+    //int line;
+  //  int index;
+    QTextCursor c = textCursor();
+    c.insertText(text);
+//    insertPlainText(text);
+    //getCursorPosition(&line, &index);
+    //insertAt(text, line, index);
+    //std::string s = text;
+    //size_t n = std::count(s.begin(), s.end(), '\n');
+    //setCursorPosition(line + n, 0);
+}*/

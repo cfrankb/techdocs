@@ -1,0 +1,12 @@
+http://doc.qt.io/qt-5/windows-requirements.html#graphics-drivers
+
+The loading mechanism can be configured through the QT_OPENGL environment variable and the following application attributes:
+
+    Qt::AA_UseDesktopOpenGL Equivalent to setting QT_OPENGL to desktop.
+    Qt::AA_UseOpenGLES Equivalent to setting QT_OPENGL to angle.
+    Qt::AA_UseSoftwareOpenGL Equivalent to setting QT_OPENGL to software.
+
+When a certain configuration is requested explicitly, no checks are done at application startup, that is, the system-provided opengl32.dll will not be examined. 
+
+
+080027556FF5
